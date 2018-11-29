@@ -1,0 +1,16 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+}
+.am-list-body .am-tabs{
+  display: flex!important;
+  flex-direction:column!important;
+}
+.am-list-body .am-tabs-tab-bar-wrap{
+  height: 44px!important;
+
+}
+.am-list-body .am-tabs-content-wrap{
+  flex-grow: 1!important
+}

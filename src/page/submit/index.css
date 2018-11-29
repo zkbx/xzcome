@@ -1,0 +1,36 @@
+.my-radio .am-radio {
+  padding: 2.5px;
+  border: 1px solid #ccc;
+  border-radius: 50%;
+  margin-right: 5px;
+}
+
+.ywtitle {
+  text-align: center;
+  font-size: 34px;
+  color: #3cc51f;
+  font-weight: 400;
+  margin: 0 15%
+}
+
+.yw-sub-title {
+  text-align: center;
+  color: #888;
+  font-size: 14px
+}
+
+.ywheader {
+  padding: 35px 0
+}
+
+.yw-content-padded {
+  padding: 15px
+}
+
+.yw-second-title {
+  text-align: center;
+  font-size: 24px;
+  color: #3cc51f;
+  font-weight: 400;
+  margin: 0 15%
+}
