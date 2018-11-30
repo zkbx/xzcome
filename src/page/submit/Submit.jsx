@@ -276,7 +276,7 @@ class BasicInput extends React.Component {
           "简要描述任务，例如：我需要人去超市帮我领快递，小件。请勿直接填写取件码的关键信息！";
         extraInfo = (
           <div>
-            {contactInfo}
+            {/* {contactInfo} */}
             <InputItem
               {...getFieldProps("amount", {
                 // initialValue: 'little ant',
@@ -299,7 +299,7 @@ class BasicInput extends React.Component {
           "简要描述物品，例如：小米手环3，7月底在京东买的，发票还在";
         extraInfo = (
           <div>
-            {contactInfo}
+            {/* {contactInfo} */}
             <InputItem
               {...getFieldProps("amount", {
                 // initialValue: 'little ant',
@@ -420,7 +420,7 @@ class BasicInput extends React.Component {
           >
             <List.Item arrow="horizontal">学校</List.Item>
           </Picker>
-
+{contactInfo}
           {extraInfo}
         </List>
 

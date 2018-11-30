@@ -7,14 +7,14 @@ export const kindMap = [
     value: "320000",
     label: "二手市场"
   },
-  {
-    value: "330000",
-    label: "表白墙"
-  },
-  {
-    value: "340000",
-    label: "兼职"
-  }
+  // {
+  //   value: "330000",
+  //   label: "表白墙"
+  // },
+  // {
+  //   value: "340000",
+  //   label: "兼职"
+  // }
 ];
 export const contact_kind = [
   {

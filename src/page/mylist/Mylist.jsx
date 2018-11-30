@@ -91,6 +91,7 @@ export default class Mylist extends React.Component {
       page: pageIndex,
       per_page: 7
     };
+    
     getData(filter, pageIndex++, () => {
       this.setState({
         dataSource: this.state.dataSource.cloneWithRowsAndSections(
@@ -99,7 +100,7 @@ export default class Mylist extends React.Component {
           myRowIDs
         ),
         isLoading: false,
-        height: hei - 50
+        // height: hei - 50
       });
     });
     if (this.state.selectID) {
@@ -147,8 +148,7 @@ export default class Mylist extends React.Component {
       return;
     }
     console.log("reach end", event);
-    this.setState({ isLoading: true });
-    setTimeout(() => {
+    this.setState({ isLoading: true }),() => {
       console.info("hell22");
       //   genData();
       const filter = {
@@ -166,7 +166,8 @@ export default class Mylist extends React.Component {
           isLoading: false
         });
       });
-    }, 1000);
+    };
+
   };
 
   render() {
@@ -210,7 +211,7 @@ export default class Mylist extends React.Component {
           renderRow={row}
           // renderSeparator={separator}
           style={{
-            height: this.state.height,
+            height: "100%",
             overflow: "auto"
           }}
           pageSize={4}

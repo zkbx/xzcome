@@ -3,7 +3,7 @@ import { TabBar } from "antd-mobile";
 import MyInfo from "./page/myInfo/MyInfo";
 import InfoBoard from "./page/infoBoard";
 import Submit from "./page/submit/Submit";
-import Mylist from "./page/mylist/Mylist";
+import Mylist from "./page/mylist/index";
 import Review from "./page/review/Review";
 import { Route } from "react-router";
 import infoboard from "./source/infoboard.png";

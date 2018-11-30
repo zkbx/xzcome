@@ -168,11 +168,11 @@ class MyInfo extends React.Component {
             arrow="horizontal"
             multipleLine
             onClick={() => {
-              if(this.state.userinfo.unlogin){
-                toLogin(1)
-              }else{
+              // if(this.state.userinfo.unlogin){
+              //   toLogin(1)
+              // }else{
                 window.location = "#/mylist";
-              }
+              // }
               
             }}
             thumb={require('./source/list.png')}

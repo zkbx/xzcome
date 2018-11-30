@@ -33,7 +33,7 @@ export default class InfoCard extends React.Component {
                   <span style={{ fontSize: "0.9em" }}>
                     {this.props.nickname}
                   </span>
-                  <span style={{ color: "grey", "font-size": "0.5em" }}>
+                  <span style={{ color: "grey", fontSize: "0.5em" }}>
                     {this.props.time}
                   </span>{" "}
                 </div>

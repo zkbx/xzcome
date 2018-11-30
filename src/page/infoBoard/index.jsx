@@ -26,7 +26,7 @@ class InfoBoard extends React.Component {
       this.state.school_id = args["school_id"];
     } else if ("userinfo" in window.localStorage) {
       const userinfo = JSON.parse(window.localStorage["userinfo"]);
-      console.info(userinfo);
+      // console.info(userinfo);
       if (userinfo["school_id"] == "") {
         Modal.alert("提示", "请在 我的->学校 选择对应学校", [
           {
@@ -85,8 +85,8 @@ class InfoBoard extends React.Component {
     const tabs = [
       { title: "帮帮忙" },
       { title: "二手市场" },
-      { title: "表白墙" },
-      { title: "兼职" }
+      // { title: "表白墙" },
+      // { title: "兼职" }
     ];
     const hei = document.documentElement.clientHeight - 50;
     return (
@@ -110,7 +110,7 @@ class InfoBoard extends React.Component {
             selectID={this.state.SID}
             kind='320000'
           />
-          <AskLove
+          <ContentList
             school_id={this.state.school_id}
             selectID={this.state.AID}
             kind='330000'
@@ -124,7 +124,7 @@ class InfoBoard extends React.Component {
               backgroundColor: "#fff"
             }}
           >
-            即将上线...
+            即将上线，敬请期待...
           </div>
         </Tabs>
       </div>
