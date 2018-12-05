@@ -5,7 +5,7 @@ import { Login } from "../../utlis/qqLogin";
 import getUserInfo from "../../utlis/getUserInfo";
 import instance from "../../utlis/api";
 import { schoolMap } from "../../Data";
-import { showQQ, copyAndShow, checkMobile, toLogin,soonOnline } from "../../utlis/utlis";
+import { showQQ, copyAndShow, checkMobile, toLogin, soonOnline } from "../../utlis/utlis";
 
 const Item = List.Item;
 
@@ -37,9 +37,16 @@ class MyInfo extends React.Component {
         };
       }
       Login(postData, token => {
+        
         window.localStorage.removeItem("userinfo");
         window.localStorage.removeItem("token");
         window.localStorage.setItem("token", token);
+        
+        getUserInfo(window.localStorage.getItem('token'), userinfo => {
+          window.localStorage.setItem("userinfo", JSON.stringify(userinfo));
+          console.log(123,window.localStorage.getItem('userinfo'))
+          console.log(456,window.localStorage.getItem('token'))
+        });
 
         window.location.href = window.location.origin + "/#/my";
       });
@@ -62,17 +69,17 @@ class MyInfo extends React.Component {
         });
         window.localStorage.setItem("userinfo", JSON.stringify(userinfo));
       });
-    } 
+    }
   }
 
   render() {
     return (
       <div>
-        <List className="my-list" style={{paddingTop:'15px'}}>
+        <List className="my-list" style={{ paddingTop: '15px' }}>
           <Item
             arrow="horizontal"
             onClick={() => {
-              if (!("unlogin" in this.state.userinfo &&this.state.userinfo.unlogin)) {
+              if (!("unlogin" in this.state.userinfo && this.state.userinfo.unlogin)) {
                 Modal.alert("提示", "是否退出", [
                   {
                     text: "否"
@@ -83,38 +90,46 @@ class MyInfo extends React.Component {
                       window.localStorage.removeItem("token");
                       window.localStorage.removeItem("userinfo");
                       window.location.href = window.location.origin + "/#/my";
+                      this.setState({
+                        userinfo: {
+                          nickname: "未登录",
+                          avatar:
+                            "https://cdn.iconscout.com/icon/premium/png-256-thumb/anonymous-17-623658.png",
+                          unlogin: true
+                        }
+                      })
                     }
                   }
                 ]);
               } else {
-                toLogin();
+                toLogin()
               }
             }}
           >
             {<div>
-                <div style={{ float: "left" }}>
-                  <img
-                    alt=""
-                    style={{
-                      width: "64px",
-                      height: "64px",
-                      borderRadius: "32px"
-                    }}
-                    src={this.state.userinfo.avatar}
-                  />
-                </div>
-                <div
+              <div style={{ float: "left" }}>
+                <img
+                  alt=""
                   style={{
-                    flexDirection: "column",
-                    display: "flex",
-                    marginLeft: 80,
-                    padding: "3% 0"
+                    width: "64px",
+                    height: "64px",
+                    borderRadius: "32px"
                   }}
-                >
-                  <span style={{ fontSize: "0.9em" }}>
-                    {this.state.userinfo.nickname}
-                  </span>
-                  {"unlogin" in this.state.userinfo &&
+                  src={this.state.userinfo.avatar}
+                />
+              </div>
+              <div
+                style={{
+                  flexDirection: "column",
+                  display: "flex",
+                  marginLeft: 80,
+                  padding: "3% 0"
+                }}
+              >
+                <span style={{ fontSize: "0.9em" }}>
+                  {this.state.userinfo.nickname}
+                </span>
+                {"unlogin" in this.state.userinfo &&
                   this.state.userinfo.unlogin ? (
                     <div>
                       <span style={{ fontSize: "0.5em", color: "grey" }}>
@@ -133,8 +148,8 @@ class MyInfo extends React.Component {
                       </span>
                     </div>
                   )}
-                </div>
               </div>
+            </div>
             }
           </Item>
           <Picker
@@ -143,8 +158,10 @@ class MyInfo extends React.Component {
             className="forss"
             extra="未绑定"
             value={
-              this.state.userinfo.school_id && [this.state.userinfo.school_id]
+              this.state.showSchool?this.state.showSchool:this.state.userinfo.school_id && [this.state.userinfo.school_id]
             }
+
+
             onChange={v => {
               Toast.loading();
               const remoteURL = "/self/update";
@@ -153,9 +170,12 @@ class MyInfo extends React.Component {
               };
               console.info(v);
               instance.post(remoteURL, data).then(response => {
-                window.localStorage.removeItem("userinfo");
+                let userData=JSON.parse(window.localStorage["userinfo"]);
+                userData.school_id=v[0]
+                window.localStorage.setItem("userinfo", JSON.stringify(userData));
                 Toast.hide();
                 this.forceUpdate();
+                this.setState({ showSchool: v })
               });
             }}
           >
@@ -168,12 +188,12 @@ class MyInfo extends React.Component {
             arrow="horizontal"
             multipleLine
             onClick={() => {
-              // if(this.state.userinfo.unlogin){
-              //   toLogin(1)
-              // }else{
+              if (this.state.userinfo.unlogin) {
+                toLogin(1)
+              } else {
                 window.location = "#/mylist";
-              // }
-              
+              }
+
             }}
             thumb={require('./source/list.png')}
           >
@@ -210,8 +230,8 @@ class MyInfo extends React.Component {
               copyAndShow(
                 this.state.strToken,
                 "验证码" +
-                  this.state.strToken +
-                  "已复制，请发送给小助手QQ，完成绑定"
+                this.state.strToken +
+                "已复制，请发送给小助手QQ，完成绑定"
               );
             }}
             extra={this.state.userinfo.qq ? this.state.userinfo.qq : "未绑定"}
@@ -231,7 +251,7 @@ class MyInfo extends React.Component {
           <Item
             arrow="horizontal"
             multipleLine
-            onClick={() => {}}
+            onClick={() => { }}
             extra={this.state.userinfo.wx_openid ? "已绑定" : "未绑定"}
             thumb={require('./source/wx.svg')}
           >
@@ -243,7 +263,7 @@ class MyInfo extends React.Component {
           <Item
             arrow="horizontal"
             multipleLine
-            onClick={() => {soonOnline()}}
+            onClick={() => { soonOnline() }}
             thumb={require('./source/help.svg')}
           >
             帮助中心

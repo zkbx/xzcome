@@ -1,4 +1,5 @@
 import React from "react";
+
 import ContentList from "../infoBoard/component/contentList"
 
 
@@ -17,19 +18,20 @@ export default class Mylist extends React.Component {
       }
     }
     this.state = {
-        school_id: school_id 
+      school_id: school_id
     };
   }
 
   render() {
-   
+
     return (
-      <div style={{height:'100%'}}>
+      <div style={{ height: '100%' }}>
         <ContentList
-            school_id={this.state.school_id}
-            // selectID={this.state.WID}
-            title='我的发布'
-          />
+          school_id={this.state.school_id}
+          // selectID={this.state.WID}
+          title='信息审核'
+          review={true}
+        />
       </div>
     );
   }

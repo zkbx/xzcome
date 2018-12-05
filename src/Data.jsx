@@ -1,20 +1,48 @@
 export const kindMap = [
   {
     value: "310000",
-    label: "帮帮忙"
+    label: "跑腿"
   },
   {
     value: "320000",
-    label: "二手市场"
+    label: "出售"
   },
-  // {
-  //   value: "330000",
-  //   label: "表白墙"
-  // },
-  // {
-  //   value: "340000",
-  //   label: "兼职"
-  // }
+  {
+    value: "330000",
+    label: "求购"
+  },
+  {
+    value: "340000",
+    label: "表白"
+  },
+  {
+    value: "350000",
+    label: "兼职"
+  },
+  {
+    value: "360000",
+    label: "租借"
+  },
+  {
+    value: "370000",
+    label: "答疑"
+  },
+  {
+    value: "380000",
+    label: "资料"
+  },
+  {
+    value: "390000",
+    label: "选课"
+  },
+  {
+    value: "400000",
+    label: "拼车"
+  },
+  {
+    value: "420000",
+    label: "其他"
+  }
 ];
 export const contact_kind = [
   {

@@ -54,9 +54,13 @@ const FuckJsCallbackIWantImg = function (imgFiles, info) {
       kind: kind
     };
     const remoteURL = "/infoboard";
-    console.info(infoData);
+    // console.info(infoData);
     instance
-      .post(remoteURL, infoData)
+      .post(remoteURL, infoData,{
+        headers: {
+            Authorization: "Bearer " + window.localStorage.getItem('token')
+        }
+      })
       .then(response => {
         Toast.success("发布成功", 1, () => {
           window.location = "#/mylist/" + String(response.data.data.id);
@@ -136,29 +140,30 @@ class BasicInput extends React.Component {
     if ("userinfo" in window.localStorage) {
       this.setState({ userinfo: JSON.parse(window.localStorage["userinfo"]) });
     } else {
-      // toLogin(1);
+      toLogin(1);
       this.setState({ userinfo: {} });
     }
   }
 
   submit = () => {
     this.props.form.validateFields((error, value) => {
+      
       if (error) {
-        console.log(error, value);
+        console.log(error)
 
-        switch (this.state.kind) {
-          case "310000":
-          case "320000":
-          case "340000":
-            delete error.askfor;
-            break;
-          case "330000":
-            delete error.contact;
-            delete error.contact_kind;
-            break;
-          default:
-            break;
-        }
+        // switch (this.state.kind) {
+        //   case "310000":
+        //   case "320000":
+        //   case "340000":
+        //     delete error.askfor;
+        //     break;
+        //   // case "330000":
+        //     delete error.contact;
+        //     delete error.contact_kind;
+        //     break;
+        //   default:
+        //     break;
+        // }
         if (error.kind) {
           Modal.alert("提示", error.kind.errors[0].message);
           return;
@@ -174,6 +179,10 @@ class BasicInput extends React.Component {
           Modal.alert("提示", error.amount.errors[0].message);
           return;
         }
+      }
+      if(!value.school_id[0]){
+        Modal.alert("提示", '请选择学校');
+        return
       }
       
      
@@ -274,103 +283,102 @@ class BasicInput extends React.Component {
       case "310000":
         desPlaceholder =
           "简要描述任务，例如：我需要人去超市帮我领快递，小件。请勿直接填写取件码的关键信息！";
-        extraInfo = (
-          <div>
-            {/* {contactInfo} */}
-            <InputItem
-              {...getFieldProps("amount", {
-                // initialValue: 'little ant',
-                rules: [{ required: true, message: "请输入金额" }]
-              })}
-              clear
-              error={!!getFieldError("amount")}
-              onErrorClick={() => {
-                alert(getFieldError("amount").join("、"));
-              }}
-              placeholder="5、5元、面议，均可"
-            >
-              订单金额
-            </InputItem>
-          </div>
-        );
+        // extraInfo = (
+        //   <div>
+        //     <InputItem
+        //       {...getFieldProps("amount", {
+        //         // initialValue: 'little ant',
+        //         rules: [{ required: true, message: "请输入金额" }]
+        //       })}
+        //       clear
+        //       error={!!getFieldError("amount")}
+        //       onErrorClick={() => {
+        //         alert(getFieldError("amount").join("、"));
+        //       }}
+        //       placeholder="5、5元、面议，均可"
+        //     >
+        //       订单金额
+        //     </InputItem>
+        //   </div>
+        // );
         break;
       case "320000":
         desPlaceholder =
           "简要描述物品，例如：小米手环3，7月底在京东买的，发票还在";
-        extraInfo = (
-          <div>
-            {/* {contactInfo} */}
-            <InputItem
-              {...getFieldProps("amount", {
-                // initialValue: 'little ant',
-                rules: [{ required: true, message: "请输入金额" }]
-              })}
-              clear
-              error={!!getFieldError("amount")}
-              onErrorClick={() => {
-                alert(getFieldError("amount").join("、"));
-              }}
-              placeholder="5、5元、面议，均可"
-            >
-              转让价格
-            </InputItem>
-          </div>
-        );
-        break;
-      case "330000":
-        desPlaceholder = "说出你的心意吧~";
-        extraInfo = (
-          <div>
-            <Picker
-              data={[
-                { value: true, label: "是" },
-                { value: false, label: "否" }
-              ]}
-              cols={1}
-              {...getFieldProps("anonymous", {
-                // initialValue: 'little ant',
-                rules: [{ required: true, message: "请选择是否匿名" }]
-              })}
-            >
-              <List.Item arrow="horizontal">匿名</List.Item>
-            </Picker>
+        // extraInfo = (
+        //   <div>
 
-            <InputItem
-              {...getFieldProps("askfor", {
-                // initialValue: 'little ant',
-                rules: [{ required: true, message: "你想送给谁" }]
-              })}
-              clear
-              error={!!getFieldError("askfor")}
-              onErrorClick={() => {
-                alert(getFieldError("askfor").join("、"));
-              }}
-              placeholder="某人"
-            >
-              他/她
-            </InputItem>
-          </div>
-        );
+        //     <InputItem
+        //       {...getFieldProps("amount", {
+        //         // initialValue: 'little ant',
+        //         rules: [{ required: true, message: "请输入金额" }]
+        //       })}
+        //       clear
+        //       error={!!getFieldError("amount")}
+        //       onErrorClick={() => {
+        //         alert(getFieldError("amount").join("、"));
+        //       }}
+        //       placeholder="5、5元、面议，均可"
+        //     >
+        //       转让价格
+        //     </InputItem>
+        //   </div>
+        // );
         break;
-      case "340000":
-        desPlaceholder =
-          "简要描述兼职信息，例如：海底捞服务员，日薪，要求男生，白天上班";
-        extraInfo = (
-          <InputItem
-            {...getFieldProps("amount", {
-              // initialValue: 'little ant',
-              rules: [{ required: true, message: "请输入金额" }]
-            })}
-            clear
-            error={!!getFieldError("amount")}
-            onErrorClick={() => {
-              alert(getFieldError("amount").join("、"));
-            }}
-            placeholder="5、5元、面议，均可"
-          >
-            兼职薪资
-          </InputItem>
-        );
+      // case "330000":
+      //   desPlaceholder = "说出你的心意吧~";
+      //   extraInfo = (
+      //     <div>
+      //       <Picker
+      //         data={[
+      //           { value: true, label: "是" },
+      //           { value: false, label: "否" }
+      //         ]}
+      //         cols={1}
+      //         {...getFieldProps("anonymous", {
+      //           // initialValue: 'little ant',
+      //           rules: [{ required: true, message: "请选择是否匿名" }]
+      //         })}
+      //       >
+      //         <List.Item arrow="horizontal">匿名</List.Item>
+      //       </Picker>
+
+      //       <InputItem
+      //         {...getFieldProps("askfor", {
+      //           // initialValue: 'little ant',
+      //           rules: [{ required: true, message: "你想送给谁" }]
+      //         })}
+      //         clear
+      //         error={!!getFieldError("askfor")}
+      //         onErrorClick={() => {
+      //           alert(getFieldError("askfor").join("、"));
+      //         }}
+      //         placeholder="某人"
+      //       >
+      //         他/她
+      //       </InputItem>
+      //     </div>
+      //   );
+      //   break;
+      // case "340000":
+      //   desPlaceholder =
+      //     "简要描述兼职信息，例如：海底捞服务员，日薪，要求男生，白天上班";
+      //   extraInfo = (
+      //     <InputItem
+      //       {...getFieldProps("amount", {
+      //         // initialValue: 'little ant',
+      //         rules: [{ required: true, message: "请输入金额" }]
+      //       })}
+      //       clear
+      //       error={!!getFieldError("amount")}
+      //       onErrorClick={() => {
+      //         alert(getFieldError("amount").join("、"));
+      //       }}
+      //       placeholder="5、5元、面议，均可"
+      //     >
+      //       兼职薪资
+      //     </InputItem>
+      //   );
         break;
 
       default:
@@ -421,7 +429,24 @@ class BasicInput extends React.Component {
             <List.Item arrow="horizontal">学校</List.Item>
           </Picker>
 {contactInfo}
-          {extraInfo}
+          {/* {extraInfo} */}
+          
+            <InputItem
+              {...getFieldProps("amount", {
+                // initialValue: 'little ant',
+                rules: [{ required: true, message: "请输入金额" }]
+              })}
+              clear
+              error={!!getFieldError("amount")}
+              onErrorClick={() => {
+                alert(getFieldError("amount").join("、"));
+              }}
+              placeholder="5、5元、面议，均可"
+              // moneyKeyboardAlign="right"
+            >
+              订单金额
+            </InputItem>
+          
         </List>
 
         <List renderHeader={() => "描述"}>

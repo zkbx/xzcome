@@ -4,7 +4,7 @@ import MyInfo from "./page/myInfo/MyInfo";
 import InfoBoard from "./page/infoBoard";
 import Submit from "./page/submit/Submit";
 import Mylist from "./page/mylist/index";
-import Review from "./page/review/Review";
+import Review from "./page/review/index";
 import { Route } from "react-router";
 import infoboard from "./source/infoboard.png";
 import infoboardSelect from "./source/infoboard-select.png";
@@ -78,7 +78,8 @@ export default class MainLayout extends React.Component {
               />
             }
             selected={selectedTab === ""}
-            badge={1}
+            // badge={1}
+            dot
             onPress={this.navTo.bind(this,"")}
             data-seed="logId"
           >
@@ -108,7 +109,7 @@ export default class MainLayout extends React.Component {
             }
             title="发布"
             key="Friend"
-            dot
+            // dot
             selected={selectedTab === "submit"}
             onPress={this.navTo.bind(this,'submit')}
           >
@@ -136,7 +137,7 @@ export default class MainLayout extends React.Component {
             }
             title="我的"
             key="Friend"
-            dot
+            // dot
             selected={selectedTab === "my"}
             onPress={this.navTo.bind(this,'my')}
           >

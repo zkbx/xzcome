@@ -6,7 +6,8 @@ import getDateDiff from "../../../utlis/getDateDiff";
 import instance from "../../../utlis/api";
 import InfoCard from "../../../component/InfoCard";
 import Gallery from "../../../component/Gallery";
-import {showQQ} from "../../../utlis/utlis"
+import { showQQ } from "../../../utlis/utlis"
+import MyBar from "../../../component/MyBar";
 
 const anonymous = {
   nickname: "匿名",
@@ -29,29 +30,8 @@ function MyBody(props) {
   );
 }
 
-let data = {
-  created_at: 1543543484657,
-  id: 2216,
-  user: {
-    id: 1813,
-    nickname: "兔兔不太居",
-    avatar: "http://qzapp.qlogo.cn/qzapp/101507500/247AC4D5A59D187E40071CC26CDCDE63/100",
-    school_id: "0010"
-  },
-  kind: "310000",
-  school_id: "0010",
-  status: 1,
-  info: {
-    amount: "400",
-    contact: "1404914638",
-    contact_kind: "0010",
-    descipt: "400出一辆永久山地车，全新，买完以后不想要了", school_id: "0010",
-    id: 1813,
-    imgs: [{ height: 400, src: "5668096.png", width: 300 }]
-  }
-}
 
-export default class WeHelpList extends React.Component {
+export default class ComtentList extends React.Component {
   constructor(props) {
     super(props);
     // console.info(props);
@@ -70,21 +50,65 @@ export default class WeHelpList extends React.Component {
       sectionHeaderHasChanged: (s1, s2) => s1 !== s2
     });
 
+    var school_id = null;
+    var user_id = null;
+
+    if ("userinfo" in window.localStorage) {
+      const userinfo = JSON.parse(window.localStorage["userinfo"]);
+      // console.info(userinfo);
+      school_id = userinfo["school_id"];
+      user_id = userinfo["id"];
+      if (!userinfo["qq"]) {
+      }
+    }
+
     this.state = {
       dataSource,
       isLoading: true,
       // height: (document.documentElement.clientHeight * 3) / 4,
-      school_id: this.props.school_id,
+      school_id: school_id ? school_id : this.props.school_id,
+      user_id: user_id,
       pageIndex: 0,
       modal: false,
       myData: {},
       myRowIDs: [],
-      sectionIDs: []
+      sectionIDs: [],
+      selectID: this.props.match ? this.props.match.params.id : ''
     };
   }
 
+  getData1 = (filter, pIndex = 0, callback) => {
+    const remoteURL = this.props.review?"/self/reviewinfo?" + urlEncode(filter):"/self/infoboard?" + urlEncode(filter)
+    instance.get(remoteURL, {
+      headers: {
+          Authorization: "Bearer " + window.localStorage.getItem('token')
+      }
+    }).then(response => {
+      let setData = this.state.myData
+      setData[pIndex] = response.data.data;
+      this.setState({ myData: setData });
+
+      let setSectionIDs = this.state.sectionIDs;
+      setSectionIDs.push(pIndex);
+      this.setState({ sectionIDs: setSectionIDs })
+      let f = length => [...Array.from({ length }).keys()];
+
+      let setMyRowIDs = this.state.myRowIDs
+      setMyRowIDs.push(f(this.state.myData[pIndex].length));
+      this.setState({ myRowIDs: setMyRowIDs })
+
+      if (typeof callback === "function") {
+        callback();
+      }
+    });
+  }
+
   getData = (query, filter, pIndex = 0, callback) => {
-    const remoteURL = "/query/infoboard?" + urlEncode(filter);
+    // console.log(filter)
+    const remoteURL = `/query/infoboard?` + urlEncode(filter);
+
+    // console.log(remoteURL)
+
     instance.post(remoteURL, query).then(response => {
       if (response.data.code == 0) {
 
@@ -107,93 +131,70 @@ export default class WeHelpList extends React.Component {
 
       }
     });
+
+
   };
 
-  componentDidMount() {
+  componentWillMount() {
 
     // you can scroll to the specified position
     // setTimeout(() => this.lv.scrollTo(0, 120), 800);
-    const hei =
-      document.documentElement.clientHeight -
-      ReactDOM.findDOMNode(this.lv).parentNode.offsetTop;
+
     //   genData();
-    const query = {
-      school_id: this.state.school_id,
-      status: 1,
-      kind: this.props.kind
-    };
-    const filter = {
+    // alert(2)
+
+    let filter = {
       page: this.state.pageIndex,
       per_page: 7
     };
     let setPageIndex = this.state.pageIndex
-    this.getData(query, filter, setPageIndex++, () => {
-      // console.info(myRowIDs);
-      // console.info(myData);
-      // console.info(sectionIDs);
-      this.setState({
-        dataSource: this.state.dataSource.cloneWithRowsAndSections(
-          this.state.myData,
-          this.state.sectionIDs,
-          this.state.myRowIDs,
 
-        ),
-        pageIndex: setPageIndex,
-        isLoading: false,
-        // height: hei - 93.5
-      });
-    });
-    if (this.props.selectID) {
-      const remoteURL = "/infoboard/" + this.props.selectID;
+    if (!this.props.title) {
+      const query = {
+        school_id: this.state.school_id,
+        status: 1,
+        kind: this.props.kind
+      };
+      // console.log(filter)
 
-      instance.get(remoteURL).then(response => {
+      this.getData(query, filter, setPageIndex++, () => {
+        // console.info(myRowIDs);
+        // console.info(myData);
+        // console.info(sectionIDs);
         this.setState({
-          modal: true
-        }, () => console.log('lalal', this.state.modal))
-        var title = "";
-        var msg = "";
-        console.log('lolol', response.data)
-        // if (response.data.code === 0) {
-        //   if (response.data.data.info.anonymous) {
-        //     title = "提示";
-        //     msg = "他/她很害羞，没有公开联系方式";
-        //   } else {
-        //     switch (response.data.data.status) {
-        //       case 0:
-        //         title = "提示";
-        //         msg = "正在审核，请稍候";
-        //         break;
-        //       case 1:
-        //         switch (response.data.data.info.contact_kind) {
-        //           case "0010":
-        //             title = "请联系QQ";
-        //             break;
-        //           case "0020":
-        //             title = "请联系微信";
-        //             break;
-        //           case "0030":
-        //             title = "请联系电话";
-        //             break;
-        //           default:
-        //             break;
-        //         }
-        //         msg = response.data.data.info.contact;
-        //         break;
-        //       default:
-        //         title = "提示";
-        //         //提示信息不同
-        //         msg = "表白信息不存在，或已删除";
-        //         break;
-        //     }
-        //   }
-        // } else {
-        //   title = "提示";
-        //   msg = "任务不存在，或已删除";
-        // }
-        // alert(1)
+          dataSource: this.state.dataSource.cloneWithRowsAndSections(
+            this.state.myData,
+            this.state.sectionIDs,
+            this.state.myRowIDs,
 
+          ),
+          pageIndex: setPageIndex,
+          isLoading: false,
+          // height: hei - 93.5
+        });
+      });
+    } else {
+      const query = {
+        school_id: this.state.school_id,
+        status: 1,
+      };
+      console.log(filter)
+      this.getData1(filter, setPageIndex++, () => {
+        this.setState({
+          dataSource: this.state.dataSource.cloneWithRowsAndSections(
+            this.state.myData,
+            this.state.sectionIDs,
+            this.state.myRowIDs,
+
+          ),
+          pageIndex: setPageIndex,
+          isLoading: false,
+          // height: hei - 93.5
+        });
       });
     }
+
+   
   }
 
   onEndReached = event => {
@@ -202,55 +203,68 @@ export default class WeHelpList extends React.Component {
     if (this.state.isLoading && !this.state.hasMore) {
       return;
     }
-    // console.log("reach end", event);
-    this.setState({ isLoading: true }, () => {
-      // console.info("hell22");
+    console.log("reach end", event);
+    this.setState({ isLoading: true });
+    setTimeout( () => {
+      console.info("hell22");
       //   genData();
-      const query = {
-        school_id: this.state.school_id,
-        status: 1,
-        kind: this.props.kind
-      };
+
+
       const filter = {
         page: this.state.pageIndex,
         per_page: 5
       };
       let setPageIndex = this.state.pageIndex
-      this.getData(query, filter, ++setPageIndex, () => {
-        // console.info(myRowIDs);
-        this.setState({
-          dataSource: this.state.dataSource.cloneWithRowsAndSections(
-            this.state.myData,
-            this.state.sectionIDs,
-            this.state.myRowIDs
-          ),
-          pageIndex: setPageIndex,
-          isLoading: false
+      if (!this.props.title) {
+        const query = {
+          school_id: this.state.school_id,
+          status: 1,
+          kind: this.props.kind
+        };
+        this.getData(query, filter, ++setPageIndex, () => {
+          // console.info(myRowIDs);
+          this.setState({
+            dataSource: this.state.dataSource.cloneWithRowsAndSections(
+              this.state.myData,
+              this.state.sectionIDs,
+              this.state.myRowIDs
+            ),
+            pageIndex: setPageIndex,
+            isLoading: false
+          });
         });
-      });
-    });
-    // setTimeout(, 1000);s
+      } else {
+        this.getData1(filter, ++setPageIndex, () => {
+          // console.info(myRowIDs);
+          this.setState({
+            dataSource: this.state.dataSource.cloneWithRowsAndSections(
+              this.state.myData,
+              this.state.sectionIDs,
+              this.state.myRowIDs
+            ),
+            pageIndex: setPageIndex,
+            isLoading: false
+          });
+        });
+      }
+    }, 1000);
   };
 
-  onClose = key => () => {
-    this.setState({
-      [key]: false,
-    });
-  }
+
 
   render() {
     const row = (rowData, sectionID, rowID) => {
       if (rowData) {
-        console.info(rowData, rowID);
+        console.info(rowData.info);
         return (
           <InfoCard
             nickname={
-              rowData.info.anonymous ? anonymous.nickname : rowData.user.nickname
+             rowData.user.nickname
             }
             time={getDateDiff(rowData.created_at)}
             buttonText={"联系"}
             avatar={
-              rowData.info.anonymous ? anonymous.avatar : rowData.user.avatar
+              rowData.user.avatar
             }
             description={rowData.info.descipt}
             amount={rowData.info.amount}
@@ -259,6 +273,13 @@ export default class WeHelpList extends React.Component {
             //传递的props不同，前两个有联系方式
             askfor={rowData.info.askfor}
             photos={rowData.info.imgs}
+            kind={rowData.kind}
+            status={rowData.status}
+            id={rowData.id}
+            title={this.props.title}
+            review={this.props.review}
+            school_id={rowData.school_id}
+            user_id={rowData.user.id}
           />
         );
       }
@@ -267,8 +288,11 @@ export default class WeHelpList extends React.Component {
     return (
       <div style={{
         height: "100%",
-        overflow: "auto"
+        overflow: "auto",
+        display: 'flex',
+        flexDirection: 'column',
       }}>
+        {this.props.title ? <MyBar title={this.props.title} /> : ''}
         <ListView
           ref={el => (this.lv = el)}
           dataSource={this.state.dataSource}
@@ -285,8 +309,8 @@ export default class WeHelpList extends React.Component {
           renderRow={row}
           // renderSeparator={separator}
           style={{
-            height: "100%",
-            overflow: "auto"
+            overflow: "auto",
+            flexGrow: 1,
           }}
           pageSize={4}
           onScroll={() => {
@@ -296,71 +320,7 @@ export default class WeHelpList extends React.Component {
           onEndReached={this.onEndReached}
           onEndReachedThreshold={100}
         />
-        <Modal
-          visible={this.state.modal}
-          transparent
-          maskClosable={true}
-          onClose={this.onClose('modal')}
-          title="详情"
-          footer={[
-            {
-              text: '联系',
-              onPress:
-                () => {
-                  var title = "";
-                  switch (data.info.contact_kind) {
-                    case "0010":
-                      title = "请联系QQ";
-                      showQQ(data.info.contact);
-                      this.onClose('modal')();
-                      return;
-                    case "0020":
-                      title = "请联系微信";
-                      this.onClose('modal')();
-                      break;
-                    case "0030":
-                      title = "请联系电话";
-                      this.onClose('modal')();
-                      break;
-                    default:
-                      this.onClose('modal')();
-                      break;
-                  }
-                  Modal.alert(title, data.info.contact, [
-                    {
-                      text: "Ok"
-                    }
-                  ]);
-
-                }
-
-            }]}
-
-        >
-          <div >
-            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 2px' }}>
-              <div style={{ display: 'flex' }}>
-                <img src={data.user.avatar} alt="" style={{ display: 'inline-block', width: '32px', height: '32px' }} />
-                <span style={{ lineHeight: 1, textAlign: 'left', marginLeft: '3px' }}>
-                  {data.user.nickname}<br />{getDateDiff(data.created_at)}
-                </span>
-              </div>
-              <span style={{ fontSize: '24px', fontWeight: 'bold', lineHeight: '32px' }}>
-                ￥{data.info.amount}
-              </span>
-            </div>
-            {data.info.imgs.length ?
-              <div style={{ display: 'block', width: '100%', marginTop: '5px' }}>
-                <Gallery photos={data.info.imgs} />
-              </div>
-              : ''
-            }
-            <p style={{ textAlign: 'left' }}>
-              {data.info.descipt}
-            </p>
-          </div>
-        </Modal>
-      </div>
+       </div>
 
     );
   }

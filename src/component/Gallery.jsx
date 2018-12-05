@@ -89,7 +89,7 @@ export default class gallery extends React.Component {
     if (this.props.photos) {
       myphotos = this.props.photos.map(photo => {
         return {
-          src: "https://xzcome.oss-cn-beijing.aliyuncs.com/" + photo.src,
+          src: "https://img.xzllo.com/" + photo.src,
           width: photo.width,
           height: photo.height
         };
