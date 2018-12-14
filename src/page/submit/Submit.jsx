@@ -56,9 +56,9 @@ const FuckJsCallbackIWantImg = function (imgFiles, info) {
     const remoteURL = "/infoboard";
     // console.info(infoData);
     instance
-      .post(remoteURL, infoData,{
+      .post(remoteURL, infoData, {
         headers: {
-            Authorization: "Bearer " + window.localStorage.getItem('token')
+          Authorization: "Bearer " + window.localStorage.getItem('token')
         }
       })
       .then(response => {
@@ -147,7 +147,7 @@ class BasicInput extends React.Component {
 
   submit = () => {
     this.props.form.validateFields((error, value) => {
-      
+
       if (error) {
         console.log(error)
 
@@ -174,18 +174,18 @@ class BasicInput extends React.Component {
           Modal.alert("提示", error[err].errors[0].message);
           return;
         }
-        
+
         if (error.amount) {
           Modal.alert("提示", error.amount.errors[0].message);
           return;
         }
       }
-      if(!value.school_id[0]){
+      if (!value.school_id[0]) {
         Modal.alert("提示", '请选择学校');
         return
       }
-      
-     
+
+
       if (!this.state.agree) {
         Modal.alert("提示", "请同意免责声明");
         return;
@@ -325,60 +325,60 @@ class BasicInput extends React.Component {
         //   </div>
         // );
         break;
-      // case "330000":
-      //   desPlaceholder = "说出你的心意吧~";
-      //   extraInfo = (
-      //     <div>
-      //       <Picker
-      //         data={[
-      //           { value: true, label: "是" },
-      //           { value: false, label: "否" }
-      //         ]}
-      //         cols={1}
-      //         {...getFieldProps("anonymous", {
-      //           // initialValue: 'little ant',
-      //           rules: [{ required: true, message: "请选择是否匿名" }]
-      //         })}
-      //       >
-      //         <List.Item arrow="horizontal">匿名</List.Item>
-      //       </Picker>
+        // case "330000":
+        //   desPlaceholder = "说出你的心意吧~";
+        //   extraInfo = (
+        //     <div>
+        //       <Picker
+        //         data={[
+        //           { value: true, label: "是" },
+        //           { value: false, label: "否" }
+        //         ]}
+        //         cols={1}
+        //         {...getFieldProps("anonymous", {
+        //           // initialValue: 'little ant',
+        //           rules: [{ required: true, message: "请选择是否匿名" }]
+        //         })}
+        //       >
+        //         <List.Item arrow="horizontal">匿名</List.Item>
+        //       </Picker>
 
-      //       <InputItem
-      //         {...getFieldProps("askfor", {
-      //           // initialValue: 'little ant',
-      //           rules: [{ required: true, message: "你想送给谁" }]
-      //         })}
-      //         clear
-      //         error={!!getFieldError("askfor")}
-      //         onErrorClick={() => {
-      //           alert(getFieldError("askfor").join("、"));
-      //         }}
-      //         placeholder="某人"
-      //       >
-      //         他/她
-      //       </InputItem>
-      //     </div>
-      //   );
-      //   break;
-      // case "340000":
-      //   desPlaceholder =
-      //     "简要描述兼职信息，例如：海底捞服务员，日薪，要求男生，白天上班";
-      //   extraInfo = (
-      //     <InputItem
-      //       {...getFieldProps("amount", {
-      //         // initialValue: 'little ant',
-      //         rules: [{ required: true, message: "请输入金额" }]
-      //       })}
-      //       clear
-      //       error={!!getFieldError("amount")}
-      //       onErrorClick={() => {
-      //         alert(getFieldError("amount").join("、"));
-      //       }}
-      //       placeholder="5、5元、面议，均可"
-      //     >
-      //       兼职薪资
-      //     </InputItem>
-      //   );
+        //       <InputItem
+        //         {...getFieldProps("askfor", {
+        //           // initialValue: 'little ant',
+        //           rules: [{ required: true, message: "你想送给谁" }]
+        //         })}
+        //         clear
+        //         error={!!getFieldError("askfor")}
+        //         onErrorClick={() => {
+        //           alert(getFieldError("askfor").join("、"));
+        //         }}
+        //         placeholder="某人"
+        //       >
+        //         他/她
+        //       </InputItem>
+        //     </div>
+        //   );
+        //   break;
+        // case "340000":
+        //   desPlaceholder =
+        //     "简要描述兼职信息，例如：海底捞服务员，日薪，要求男生，白天上班";
+        //   extraInfo = (
+        //     <InputItem
+        //       {...getFieldProps("amount", {
+        //         // initialValue: 'little ant',
+        //         rules: [{ required: true, message: "请输入金额" }]
+        //       })}
+        //       clear
+        //       error={!!getFieldError("amount")}
+        //       onErrorClick={() => {
+        //         alert(getFieldError("amount").join("、"));
+        //       }}
+        //       placeholder="5、5元、面议，均可"
+        //     >
+        //       兼职薪资
+        //     </InputItem>
+        //   );
         break;
 
       default:
@@ -428,72 +428,74 @@ class BasicInput extends React.Component {
           >
             <List.Item arrow="horizontal">学校</List.Item>
           </Picker>
-{contactInfo}
+          {contactInfo}
           {/* {extraInfo} */}
-          
-            <InputItem
-              {...getFieldProps("amount", {
-                // initialValue: 'little ant',
-                rules: [{ required: true, message: "请输入金额" }]
-              })}
-              clear
-              error={!!getFieldError("amount")}
-              onErrorClick={() => {
-                alert(getFieldError("amount").join("、"));
-              }}
-              placeholder="5、5元、面议，均可"
-              // moneyKeyboardAlign="right"
-            >
-              订单金额
+
+          <InputItem
+            {...getFieldProps("amount", {
+              // initialValue: 'little ant',
+              rules: [{ required: true, message: "请输入金额" }]
+            })}
+            clear
+            error={!!getFieldError("amount")}
+            onErrorClick={() => {
+              alert(getFieldError("amount").join("、"));
+            }}
+            maxLength = {6}
+          placeholder="5,5元,面议...(长度限制6位)"
+        // moneyKeyboardAlign="right"
+        
+      >
+        订单金额
             </InputItem>
           
         </List>
 
-        <List renderHeader={() => "描述"}>
-          <ImagePickerExample form={this.props.form} />
+      <List renderHeader={() => "描述"}>
+        <ImagePickerExample form={this.props.form} />
 
-          <TextareaItem
-            {...getFieldProps("descipt", {
-              rules: [{ required: true, message: "请输入简要描述" }]
-            })}
-            rows={5}
-            count={100}
-            error={!!getFieldError("descipt")}
-            onErrorClick={() => {
-              alert(getFieldError("descipt").join("、"));
+        <TextareaItem
+          {...getFieldProps("descipt", {
+            rules: [{ required: true, message: "请输入简要描述" }]
+          })}
+          rows={5}
+          count={100}
+          error={!!getFieldError("descipt")}
+          onErrorClick={() => {
+            alert(getFieldError("descipt").join("、"));
+          }}
+          placeholder={desPlaceholder}
+        />
+      </List>
+      <Flex>
+        <Flex.Item>
+          <Checkbox.AgreeItem
+            data-seed="logId"
+            onChange={e => {
+              console.log("checkbox", e);
+              this.setState({ agree: e.target.checked });
             }}
-            placeholder={desPlaceholder}
-          />
-        </List>
-        <Flex>
-          <Flex.Item>
-            <Checkbox.AgreeItem
-              data-seed="logId"
-              onChange={e => {
-                console.log("checkbox", e);
+          >
+            阅读并同意&nbsp;
+              <a
+              onClick={e => {
+                e.preventDefault();
+                alert("agree it");
                 this.setState({ agree: e.target.checked });
               }}
             >
-              阅读并同意&nbsp;
-              <a
-                onClick={e => {
-                  e.preventDefault();
-                  alert("agree it");
-                  this.setState({ agree: e.target.checked });
-                }}
-              >
-                《免责声明》
+              《免责声明》
               </a>
-            </Checkbox.AgreeItem>
-          </Flex.Item>
-        </Flex>
-        <WingBlank size="lg">
-          <Button type="primary" onClick={this.submit}>
-            提交
+          </Checkbox.AgreeItem>
+        </Flex.Item>
+      </Flex>
+      <WingBlank size="lg">
+        <Button type="primary" onClick={this.submit}>
+          提交
           </Button>
-        </WingBlank>
-        <WhiteSpace size="lg" />
-      </div>
+      </WingBlank>
+      <WhiteSpace size="lg" />
+      </div >
     );
   }
 }

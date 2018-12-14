@@ -5,7 +5,6 @@
   "dependencies": {
     "@icedesign/data-binder": "^0.1.8",
     "ali-oss": "^6.0.1",
-    "antd": "^3.10.3",
     "antd-mobile": "^2.0.0",
     "antd-mobile-demo-data": "^0.2.0",
     "axios": "^0.18.0",

@@ -1,19 +1,46 @@
 import React from "react";
-import { Tabs, Modal } from "antd-mobile";
+import { Tabs, Modal, Icon, Badge } from "antd-mobile";
 import parseUrl from "../../utlis/parseUrl";
 
 import ContentList from "./component/contentList"
 import { kindMap } from "../../Data"
 import Gallery from "../../component/Gallery";
-import { showQQ } from "../../utlis/utlis"
+import { showQQ, toLogin } from "../../utlis/utlis"
 import getDateDiff from "../../utlis/getDateDiff";
 import instance from "../../utlis/api";
 
-
+let data = ['310000', '320000']
 //默认主页面
 class InfoBoard extends React.Component {
   constructor(props) {
     super(props);
+
+    var user_id, tags;
+    if ("userinfo" in window.localStorage) {
+      const userinfo = JSON.parse(window.localStorage["userinfo"]);
+      user_id = userinfo["id"];
+      tags = userinfo["tags"]
+      if (!userinfo["qq"]) {
+      }
+    }
+    console.log(user_id)
+
+    let attentionArr = [];
+    if (tags) {
+
+      tags.forEach((v) => {
+        for (let i = 0; i < kindMap.length; i++) {
+          if (kindMap[i].value == v) {
+            let kindObj = {}
+            kindObj.title = kindMap[i].label
+            kindObj.value = kindMap[i].value
+            attentionArr.push(kindObj)
+          }
+        }
+      })
+    }
+
+
 
     let kindArr = [];
     kindMap.forEach((v, i) => {
@@ -23,6 +50,7 @@ class InfoBoard extends React.Component {
       kindArr.push(kindObj)
     })
     let kindObj1 = { title: '全部' }
+
     //随机头部的内容数组
     kindArr.sort(function () { return Math.random() - 0.5; })
     kindArr.unshift(kindObj1)
@@ -30,7 +58,9 @@ class InfoBoard extends React.Component {
       school_id: 0,
       selectID: null,
       modal: false,
-      tabs: kindArr
+      tabs: kindArr,
+      showDown: false,
+      attentionTabs: attentionArr
     };
 
     // console.info(this.state.selectTab, this.state.selectID);
@@ -63,70 +93,8 @@ class InfoBoard extends React.Component {
         "学长来咯，是一家为大学提供互助服务的信息平台，本站不收集用户信息，不收取服务费用，请大家放心使用"
       );
     }
-    // console.info(this.props);
-    //对路由进行判断，进入相应的tab栏
-    // if(this.props.match.path) {
-    //   this.setState({
-    //     ID : this.props.match.params.id
-    //   })
-    // }
-    if (this.props.match.path) {
-      // console.log(this.props.match.path)
-      const remoteURL = "/infoboard/" + this.props.match.params.id;
 
-      instance.get(remoteURL).then(response => {
-        this.setState({
-          modal: true
-        })
-        var title = "";
-        var msg = "";
-        // console.log('lolol', response.data.data)
-        this.setState({
-          showData:response.data.data
-        },()=>{
-          console.log(this.state.showData)
-        })
-        // if (response.data.code === 0) {
-        //   if (response.data.data.info.anonymous) {
-        //     title = "提示";
-        //     msg = "他/她很害羞，没有公开联系方式";
-        //   } else {
-        //     switch (response.data.data.status) {
-        //       case 0:
-        //         title = "提示";
-        //         msg = "正在审核，请稍候";
-        //         break;
-        //       case 1:
-        //         switch (response.data.data.info.contact_kind) {
-        //           case "0010":
-        //             title = "请联系QQ";
-        //             break;
-        //           case "0020":
-        //             title = "请联系微信";
-        //             break;
-        //           case "0030":
-        //             title = "请联系电话";
-        //             break;
-        //           default:
-        //             break;
-        //         }
-        //         msg = response.data.data.info.contact;
-        //         break;
-        //       default:
-        //         title = "提示";
-        //         //提示信息不同
-        //         msg = "表白信息不存在，或已删除";
-        //         break;
-        //     }
-        //   }
-        // } else {
-        //   title = "提示";
-        //   msg = "任务不存在，或已删除";
-        // }
-        // alert(1)
-
-      });
-    }
+    
 
   }
 
@@ -135,6 +103,8 @@ class InfoBoard extends React.Component {
       [key]: false,
     });
   }
+
+
 
   renderContent = tab => (
     <div
@@ -152,6 +122,10 @@ class InfoBoard extends React.Component {
   );
 
   render() {
+    const tabs = [
+      { title: <span style={{ fontSize: '18px' }}>所有</span> },
+      { title: <span style={{ fontSize: '18px' }}>接单</span> }
+    ];
     return (
       <div
         className="am-list-body my-body"
@@ -159,24 +133,90 @@ class InfoBoard extends React.Component {
         ref={el => (this.lv = el)}
       >
         <Tabs
-          initialPage={this.state.selectTab}
-          tabs={this.state.tabs}
-          renderTabBar={props => <Tabs.DefaultTabBar {...props} page={4} />}
-        >
-          {
-            this.state.tabs.map((v) => {
-              return (
-                <ContentList
-                  school_id={this.state.school_id}
-                  selectID={this.state.ID}
-                  kind={v.value}
-                />
-              )
-            })
+          initialPage={this.state.selectTabH}
+          tabs={tabs}
+          tabBarBackgroundColor='#fafafa'
+          renderTabBar={props =>
+            <div style={{ zIndex: 1, backgroundColor: "#ccc", height: "50px", lineHeight: '50px' }}><Tabs.DefaultTabBar {...props} /></div>
           }
+          tabBarTextStyle={{ height: '50px', lineHeight: '50px' }}
+          abBarInactiveTextColor='#ccc'
+          swipeable={false}
+          onChange={(tab, index) => {
+            if (index == 1) {
+              if (!window.localStorage["userinfo"]) {
+                toLogin(1)
+              } else {
+
+                if (this.state.attentionTabs.length == 0) {
+                  Modal.alert("提示", '请在 我的->接单管理->关注 中进行设置后再进行查看', [
+                    {
+                      text: "取消"
+                    },
+                    {
+                      text: "前往",
+                      onPress: () => {
+                        window.location = "#/attention";
+                      }
+                    }
+                  ]);
+                }
+              }
+            }
+
+
+          }}
+        >
+          <Tabs
+            initialPage={this.state.selectTab}
+            tabs={this.state.tabs}
+
+            renderTabBar={props => <div style={{ height: "36px", lineHeight: '36px' }}><Tabs.DefaultTabBar {...props} page={4} /></div>}
+            tabBarTextStyle={{ height: '36px', lineHeight: '36px' }}
+            tabBarActiveTextColor='#000'
+            tabBarInactiveTextColor='#ccc'
+            tabBarUnderlineStyle={{ backgroundColor: 'transparent', borderColor: 'transparent' }}
+          >
+            {
+              this.state.tabs.map((v) => {
+                return (
+                  <ContentList
+                    school_id={this.state.school_id}
+                    selectID={this.state.ID}
+                    kind={v.value}
+                    message={true}
+                  />
+                )
+              })
+            }
+
+          </Tabs>
+          <Tabs
+            initialPage={this.state.selectTab}
+            tabs={this.state.attentionTabs}
+            renderTabBar={props => <div style={{ height: "36px", lineHeight: '36px' }}><Tabs.DefaultTabBar {...props} page={4} /></div>}
+            tabBarTextStyle={{ height: '36px', lineHeight: '36px' }}
+            tabBarActiveTextColor='#000'
+            tabBarInactiveTextColor='#ccc'
+            tabBarUnderlineStyle={{ backgroundColor: 'transparent', borderColor: 'transparent' }}
+          >
+            {
+              this.state.attentionTabs.map((v) => {
+                return (
+                  <ContentList
+                    school_id={this.state.school_id}
+                    selectID={this.state.ID}
+                    kind={v.value}
+                    message={true}
+                  />
+                )
+              })
+            }
+          </Tabs>
 
         </Tabs>
-        {this.state.showData?<Modal
+
+        {/* {this.state.showData ? <Modal
           visible={this.state.modal}
           transparent
           maskClosable={true}
@@ -220,9 +260,9 @@ class InfoBoard extends React.Component {
           <div >
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 2px' }}>
               <div style={{ display: 'flex' }}>
-                <img src={this.state.showData.user.avatar} alt="" style={{ display: 'inline-block', width: '32px', height: '32px' ,borderRadius:'50%'}} />
-                <span style={{  textAlign: 'left',fontSize:'0.9em',lineHeight:'1.2em',marginLeft:4}}>
-                  {this.state.showData.user.nickname}<br/>{getDateDiff(this.state.showData.created_at)}
+                <img src={this.state.showData.user.avatar} alt="" style={{ display: 'inline-block', width: '32px', height: '32px', borderRadius: '50%' }} />
+                <span style={{ textAlign: 'left', fontSize: '0.9em', lineHeight: '1.2em', marginLeft: 4 }}>
+                  {this.state.showData.user.nickname}<br />{getDateDiff(this.state.showData.created_at)}
                 </span>
               </div>
               <span style={{ fontSize: '24px', fontWeight: 'bold', lineHeight: '32px' }}>
@@ -239,9 +279,9 @@ class InfoBoard extends React.Component {
               {this.state.showData.info.descipt}
             </span>
           </div>
-        </Modal>:''}
-        
-      
+        </Modal> : ''} */}
+
+
       </div>
     );
   }

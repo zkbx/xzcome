@@ -4,15 +4,35 @@ import parseUrl from "../../utlis/parseUrl";
 import { Login } from "../../utlis/qqLogin";
 import getUserInfo from "../../utlis/getUserInfo";
 import instance from "../../utlis/api";
-import { schoolMap } from "../../Data";
+import { schoolMap, kindMap } from "../../Data";
 import { showQQ, copyAndShow, checkMobile, toLogin, soonOnline } from "../../utlis/utlis";
 
 const Item = List.Item;
+
+function closest(el, selector) {
+  const matchesSelector = el.matches || el.webkitMatchesSelector || el.mozMatchesSelector || el.msMatchesSelector;
+  while (el) {
+    if (matchesSelector.call(el, selector)) {
+      return el;
+    }
+    el = el.parentElement;
+  }
+  return null;
+}
 
 class MyInfo extends React.Component {
   constructor(props) {
     checkMobile();
     super(props);
+
+    let kindArr = [];
+    kindMap.forEach((v, i) => {
+      let kindObj = {}
+      kindObj.title = v.label
+      kindObj.value = v.value
+      kindArr.push(kindObj)
+    })
+
     this.state = {
       disabled: false,
       token: "",
@@ -20,9 +40,15 @@ class MyInfo extends React.Component {
         nickname: "未登录",
         avatar:
           "https://cdn.iconscout.com/icon/premium/png-256-thumb/anonymous-17-623658.png",
-        unlogin: true
+        unlogin: true,
+        kindArr: kindArr,
+        modal: false,
       }
+
     };
+
+
+
     const args = parseUrl();
     // console.info(args);
     if ("code" in args) {
@@ -37,15 +63,14 @@ class MyInfo extends React.Component {
         };
       }
       Login(postData, token => {
-        
+
         window.localStorage.removeItem("userinfo");
         window.localStorage.removeItem("token");
         window.localStorage.setItem("token", token);
-        
+
         getUserInfo(window.localStorage.getItem('token'), userinfo => {
           window.localStorage.setItem("userinfo", JSON.stringify(userinfo));
-          console.log(123,window.localStorage.getItem('userinfo'))
-          console.log(456,window.localStorage.getItem('token'))
+
         });
 
         window.location.href = window.location.origin + "/#/my";
@@ -68,7 +93,35 @@ class MyInfo extends React.Component {
           userinfo: userinfo
         });
         window.localStorage.setItem("userinfo", JSON.stringify(userinfo));
+        // console.log(userinfo)
       });
+    }
+  }
+
+  showModal = key => (e) => {
+    if(this.state.userinfo.unlogin){
+      toLogin(1)
+    }else if (!this.state.userinfo.wx_openid) {
+      e.preventDefault(); // 修复 Android 上点击穿透
+      this.setState({
+        [key]: true,
+      });
+    }
+    
+  }
+  onClose = key => () => {
+    this.setState({
+      modal: false,
+    });
+  }
+  onWrapTouchStart = (e) => {
+    // fix touch to scroll background page on iOS
+    if (!/iPhone|iPod|iPad/i.test(navigator.userAgent)) {
+      return;
+    }
+    const pNode = closest(e.target, '.am-modal-content');
+    if (!pNode) {
+      e.preventDefault();
     }
   }
 
@@ -158,7 +211,7 @@ class MyInfo extends React.Component {
             className="forss"
             extra="未绑定"
             value={
-              this.state.showSchool?this.state.showSchool:this.state.userinfo.school_id && [this.state.userinfo.school_id]
+              this.state.showSchool ? this.state.showSchool : this.state.userinfo.school_id && [this.state.userinfo.school_id]
             }
 
 
@@ -170,12 +223,13 @@ class MyInfo extends React.Component {
               };
               console.info(v);
               instance.post(remoteURL, data).then(response => {
-                let userData=JSON.parse(window.localStorage["userinfo"]);
-                userData.school_id=v[0]
+                let userData = JSON.parse(window.localStorage["userinfo"]);
+                userData.school_id = v[0]
                 window.localStorage.setItem("userinfo", JSON.stringify(userData));
                 Toast.hide();
                 this.forceUpdate();
                 this.setState({ showSchool: v })
+                
               });
             }}
           >
@@ -199,6 +253,22 @@ class MyInfo extends React.Component {
           >
             我的发布
           </Item>
+          <Item
+            arrow="horizontal"
+            multipleLine
+            onClick={() => {
+              if (this.state.userinfo.unlogin) {
+                toLogin(1)
+              } else {
+                window.location = "#/attention";
+              }
+
+            }}
+            thumb={require('./source/attention.png')}
+          >
+            接单管理
+          </Item>
+
           {this.state.userinfo.role > 0 && (
             <Item
               arrow="horizontal"
@@ -220,6 +290,7 @@ class MyInfo extends React.Component {
           >
             学号
           </Item> */}
+
         </List>
 
         <List renderHeader={() => "联系方式"} className="my-list">
@@ -227,12 +298,16 @@ class MyInfo extends React.Component {
             arrow="horizontal"
             multipleLine
             onClick={() => {
-              copyAndShow(
-                this.state.strToken,
-                "验证码" +
-                this.state.strToken +
-                "已复制，请发送给小助手QQ，完成绑定"
-              );
+              if (this.state.userinfo.unlogin) {
+                toLogin(1)
+              } else {
+                copyAndShow(
+                  this.state.strToken,
+                  "验证码" +
+                  this.state.strToken +
+                  "已复制，请发送给小助手QQ(189981230)，完成绑定，绑定后请重新登陆"
+                );
+              }
             }}
             extra={this.state.userinfo.qq ? this.state.userinfo.qq : "未绑定"}
             thumb={require('./source/qq.svg')}
@@ -251,7 +326,8 @@ class MyInfo extends React.Component {
           <Item
             arrow="horizontal"
             multipleLine
-            onClick={() => { }}
+            onClick={this.showModal('modal')}
+  
             extra={this.state.userinfo.wx_openid ? "已绑定" : "未绑定"}
             thumb={require('./source/wx.svg')}
           >
@@ -263,7 +339,7 @@ class MyInfo extends React.Component {
           <Item
             arrow="horizontal"
             multipleLine
-            onClick={() => { soonOnline() }}
+            onClick={() => { window.location = "#/help"; }}
             thumb={require('./source/help.svg')}
           >
             帮助中心
@@ -274,9 +350,9 @@ class MyInfo extends React.Component {
             onClick={() => {
               window.location.href =
                 "mqqwpa://im/chat?chat_type=wpa&uin=" +
-                "9152471" +
+                "3432232421" +
                 "&version=1&src_type=web&web_src=oicqzone.com";
-              showQQ("9152471", "客服QQ已复制，快去添加她为好友吧");
+              showQQ("3432232421", "客服QQ已复制，快去添加她为好友吧");
             }}
             thumb={require('./source/support.svg')}
           >
@@ -293,6 +369,20 @@ class MyInfo extends React.Component {
             关于学长来啦
           </Item>
         </List>
+        <Modal
+          visible={this.state.modal}
+          transparent
+          maskClosable={false}
+          onClose={this.onClose()}
+          title="提示"
+          footer={[{ text: '确定', onPress: () => { this.onClose()(); } }]}
+          wrapProps={{ onTouchStart: this.onWrapTouchStart }}
+        >
+          <div style={{ height: 'auto'}}>
+            QQ用户请在微信端关注公众号 学长来咯 后进行绑定<br />
+             <img src={require('./source/qcode.jpg')} style={{width:'60%'}} alt=""/>
+          </div>
+        </Modal>
       </div>
     );
   }

@@ -78,10 +78,10 @@ export default class ComtentList extends React.Component {
   }
 
   getData1 = (filter, pIndex = 0, callback) => {
-    const remoteURL = this.props.review?"/self/reviewinfo?" + urlEncode(filter):"/self/infoboard?" + urlEncode(filter)
+    const remoteURL = this.props.review ? "/self/reviewinfo?" + urlEncode(filter) : "/self/infoboard?" + urlEncode(filter)
     instance.get(remoteURL, {
       headers: {
-          Authorization: "Bearer " + window.localStorage.getItem('token')
+        Authorization: "Bearer " + window.localStorage.getItem('token')
       }
     }).then(response => {
       let setData = this.state.myData
@@ -145,7 +145,7 @@ export default class ComtentList extends React.Component {
 
     let filter = {
       page: this.state.pageIndex,
-      per_page: 7
+      per_page: 5
     };
     let setPageIndex = this.state.pageIndex
 
@@ -194,7 +194,7 @@ export default class ComtentList extends React.Component {
       });
     }
 
-   
+
   }
 
   onEndReached = event => {
@@ -205,7 +205,7 @@ export default class ComtentList extends React.Component {
     }
     console.log("reach end", event);
     this.setState({ isLoading: true });
-    setTimeout( () => {
+    setTimeout(() => {
       console.info("hell22");
       //   genData();
 
@@ -255,11 +255,11 @@ export default class ComtentList extends React.Component {
   render() {
     const row = (rowData, sectionID, rowID) => {
       if (rowData) {
-        console.info(rowData.info);
+        console.info(rowData);
         return (
           <InfoCard
             nickname={
-             rowData.user.nickname
+              rowData.user.nickname
             }
             time={getDateDiff(rowData.created_at)}
             buttonText={"联系"}
@@ -270,7 +270,6 @@ export default class ComtentList extends React.Component {
             amount={rowData.info.amount}
             contackKind={rowData.info.contact_kind}
             contact={rowData.info.contact}
-            //传递的props不同，前两个有联系方式
             askfor={rowData.info.askfor}
             photos={rowData.info.imgs}
             kind={rowData.kind}
@@ -280,6 +279,7 @@ export default class ComtentList extends React.Component {
             review={this.props.review}
             school_id={rowData.school_id}
             user_id={rowData.user.id}
+            message={this.props.message}
           />
         );
       }
@@ -320,7 +320,7 @@ export default class ComtentList extends React.Component {
           onEndReached={this.onEndReached}
           onEndReachedThreshold={100}
         />
-       </div>
+      </div>
 
     );
   }

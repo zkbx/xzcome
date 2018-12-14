@@ -7,7 +7,15 @@ export default class MyBar extends React.Component {
       <NavBar
         mode="light"
         icon={<Icon type="left" />}
-        onLeftClick={() => window.history.back()}
+        onLeftClick={
+          () =>{
+            if(window.history.length>1){
+              window.history.back()
+            }else{
+              window.location='#/'
+            }
+          } 
+        }
       >
         {this.props.title}
       </NavBar>

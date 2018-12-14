@@ -3,10 +3,15 @@ import { TabBar } from "antd-mobile";
 import MyInfo from "./page/myInfo/MyInfo";
 import InfoBoard from "./page/infoBoard";
 import Submit from "./page/submit/Submit";
+import Help from "./page/help/index"
+import Grade from "./page/grade/index";
+import MyGrade from "./page/myGrade/index"
 import Mylist from "./page/mylist/index";
 import Review from "./page/review/index";
+import Attention from "./page/attention/index"
 import { Route } from "react-router";
 import infoboard from "./source/infoboard.png";
+// import OrderDetail from "./page/orderDetails"
 import infoboardSelect from "./source/infoboard-select.png";
 import my from "./source/my.png";
 import mySelect from "./source/my-select.png";
@@ -23,7 +28,7 @@ export default class MainLayout extends React.Component {
   }
 
   //抽象出跳转方法
-  navTo(e){
+  navTo(e) {
     // debugger
     window.location = `#/${e}`;
   }
@@ -39,12 +44,17 @@ export default class MainLayout extends React.Component {
         break;
       case "mylist":
       case "review":
+      case "attention":
+      case "help":
         selectedTab = "my";
+        break;
+      case "grade":
+      case "myGrade":
+        selectedTab = "grade";
         break;
       default:
         break;
     }
-    // console.info(selectedTab);
 
     return (
       <div style={{ position: "fixed", height: "100%", width: "100%", top: 0 }}>
@@ -80,13 +90,13 @@ export default class MainLayout extends React.Component {
             selected={selectedTab === ""}
             // badge={1}
             dot
-            onPress={this.navTo.bind(this,"")}
+            onPress={this.navTo.bind(this, "")}
             data-seed="logId"
           >
             <Route path="/" exact component={InfoBoard} />
             <Route path="/a/:id" exact component={InfoBoard} />
             <Route path="/s/:id" exact component={InfoBoard} />
-            <Route path="/w/:id" exact component={InfoBoard} />
+            {/* <Route path="/w/:id" exact component={OrderDetail} /> */}
           </TabBar.Item>
           <TabBar.Item
             icon={
@@ -111,11 +121,39 @@ export default class MainLayout extends React.Component {
             key="Friend"
             // dot
             selected={selectedTab === "submit"}
-            onPress={this.navTo.bind(this,'submit')}
+            onPress={this.navTo.bind(this, 'submit')}
           >
             <Route path="/user" component={Submit} />
             <Route path="/submit" component={Submit} />
           </TabBar.Item>
+          {/* <TabBar.Item
+            icon={
+              <div
+                style={{
+                  width: "22px",
+                  height: "22px",
+                  background: `url(${submit}) center center /  21px 21px no-repeat`
+                }}
+              />
+            }
+            selectedIcon={
+              <div
+                style={{
+                  width: "22px",
+                  height: "22px",
+                  background: `url(${submitSelect}) center center /  21px 21px no-repeat`
+                }}
+              />
+            }
+            title="查成绩"
+            key="Grade"
+            // dot
+            selected={selectedTab === "grade"}
+            onPress={this.navTo.bind(this, 'grade')}
+          >
+            <Route path="/grade" component={Grade} />
+            <Route path="/myGrade" component={MyGrade} />
+          </TabBar.Item> */}
           <TabBar.Item
             icon={
               <div
@@ -139,11 +177,12 @@ export default class MainLayout extends React.Component {
             key="Friend"
             // dot
             selected={selectedTab === "my"}
-            onPress={this.navTo.bind(this,'my')}
+            onPress={this.navTo.bind(this, 'my')}
           >
             <Route path="/my/:id" exact component={MyInfo} />
             <Route path="/my" exact component={MyInfo} />
-
+            <Route path="/help" exact component={Help} />
+            <Route path="/attention" exact component={Attention} />
             <Route path="/review" exact component={Review} />
             <Route path="/mylist/:id" exact component={Mylist} />
             <Route path="/mylist" exact component={Mylist} />

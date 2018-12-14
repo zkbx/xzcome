@@ -5,6 +5,61 @@ import Gallery from "./Gallery";
 import { showQQ } from "../utlis/utlis";
 import { schoolMap } from "../Data"
 
+let message = [
+  {
+    id: 1,
+    infoboard_id: 1,
+    user: {
+      id: 1,
+      nickname: '啊是大',
+      avatar: '',
+      school_id: ''
+    },
+    content: 'alallala'
+  }, {
+    id: 1,
+    infoboard_id: 1,
+    user: {
+      id: 1,
+      nickname: '啊是大',
+      avatar: '',
+      school_id: ''
+    },
+    content: 'alallala'
+  }, {
+    id: 1,
+    infoboard_id: 1,
+    user: {
+      id: 1,
+      nickname: '啊是大',
+      avatar: '',
+      school_id: ''
+    },
+    content: 'alallala'
+  }, {
+    id: 1,
+    infoboard_id: 1,
+    user: {
+      id: 1,
+      nickname: '啊是大',
+      avatar: '',
+      school_id: ''
+    },
+    content: 'alallala'
+  }, {
+    id: 1,
+    infoboard_id: 1,
+    user: {
+      id: 1,
+      nickname: '啊是大',
+      avatar: '',
+      school_id: ''
+    },
+    content: 'alallala'
+  },
+]
+
+
 export default class InfoCard extends React.Component {
   constructor(props) {
     super(props);
@@ -21,26 +76,46 @@ export default class InfoCard extends React.Component {
       kind: this.props.kind,
       user_id: user_id,
       role: role,
-      showhidden: 1
+      showhidden: 1,
+      newData: []
     };
   }
   componentWillMount() {
-
+    instance
+      .post('/message/query',
+        {
+          infoboard_id: this.props.id,
+          school_id: this.props.school_id,
+        }
+      )
+      .then(response => {
+        this.setState({
+          messageList: response.data.data.reverse()
+        }, () => {
+          let newData = []
+          let len = this.state.messageList.length > 3 ? 3 : this.state.messageList.length
+          for (let i = 0; i < len; i++) {
+            newData.push(this.state.messageList[i])
+          }
+          this.setState({
+            newData: newData.reverse()
+          })
+        })
+      })
   }
 
   showExtra() {
     if (this.props.title) {
       if (this.props.review) {
-        if (!this.state.status === 1) {
-          return
-
-        } else {
+        console.log(this.state.status)
+        if (this.state.status == 0) {
           return (
             <Button
               size="small"
               inline
               // maskClosable="true"
-              onClick={() =>
+              onClick={(event) => {
+                event.stopPropagation();
                 Modal.alert("提示", <div>处理结果</div>, [
                   {
                     text: "拒绝",
@@ -91,11 +166,16 @@ export default class InfoCard extends React.Component {
                     }
                   }
                 ])
+
+              }
               }
             >
               审核
           </Button>
           )
+
+        } else {
+          return
         }
 
       } else {
@@ -105,7 +185,8 @@ export default class InfoCard extends React.Component {
               <Button
                 size="small"
                 inline
-                onClick={() => {
+                onClick={(event) => {
+                  event.stopPropagation();
                   Modal.alert("提示", "任务是否完成？", [
                     {
                       text: "否"
@@ -119,7 +200,11 @@ export default class InfoCard extends React.Component {
                         };
                         const remoteURL =
                           "/self/infoboard/" + this.props.id + "/update";
-                        instance.post(remoteURL, data).then(response => {
+                        instance.post(remoteURL, data,{
+                          headers: {
+                            Authorization: "Bearer " + window.localStorage.getItem('token')
+                          }
+                        }).then(response => {
                           this.setState({
                             status: 2
                           });
@@ -144,7 +229,8 @@ export default class InfoCard extends React.Component {
           size="small"
           inline
           // maskClosable="true"
-          onClick={() => {
+          onClick={(event) => {
+            event.stopPropagation();
             Modal.prompt("原因", "填写隐藏原因", [
               { text: "取消" },
               {
@@ -182,7 +268,8 @@ export default class InfoCard extends React.Component {
               <Button
                 size="small"
                 inline
-                onClick={() => {
+                onClick={(event) => {
+                  event.stopPropagation();
                   Modal.alert("提示", "任务是否完成？", [
                     {
                       text: "否"
@@ -218,7 +305,8 @@ export default class InfoCard extends React.Component {
         <Button
           size="small"
           inline
-          onClick={() => {
+          onClick={(event) => {
+            event.stopPropagation();
             var title = "";
             switch (this.props.contackKind) {
               case "0010":
@@ -300,72 +388,112 @@ export default class InfoCard extends React.Component {
 
   render() {
 
+
+
+
     return (
-
-      <WingBlank size="lg" >
-        <WhiteSpace size="lg" />
-        <div style={{ position: 'relative' }}>
-          <div style={{ borderRadius: '5px', position: 'absolute', width: '100%', height: '100%', top: '0', left: '0', backgroundColor: 'rgba(0,0,0,0.2)', zIndex: `${this.state.showhidden}` }}>
-            <span style={{ fontSize: '2em', fontWeight: 'bold', display: 'block', lineHeight: '2.5em', width: '150px', border: '3px solid #000', borderRadius: '10px', margin: '0 auto', textAlign: 'center', marginTop: '23px', transform: 'rotate(14deg)' }}>
-              {this.state.complete ? '已完成' : '已失效'}
-            </span>
-          </div>
-          <Card
-            style={{
-              boxShadow:
-                "0 3px 5px 0 rgba(0,0,0,0.2), 0 3px 5px 0 rgba(0,0,0,0.05)", position: 'relative', zIndex: '2'
-            }}
-          >
-            <Card.Header
-              title={
+      <div onClick={() => { 
+        window.location = `#/w/${this.props.id}`;
+        }}>
+        <WingBlank size="lg" >
+          <WhiteSpace size="lg" />
+          <div style={{ position: 'relative' }}>
+            <div style={{ borderRadius: '5px', position: 'absolute', width: '100%', height: '100%', top: '0', left: '0', backgroundColor: 'rgba(0,0,0,0.2)', zIndex: `${this.state.showhidden}` }}>
+              <span style={{ position: 'absolute', left: '50%', top: '50%', marginLeft: '-85px', marginTop: '-40px', fontSize: '30px', fontWeight: 'bold', display: 'block', lineHeight: '2.5em', width: '150px', border: '3px solid #000', borderRadius: '10px', textAlign: 'center', transform: 'rotate(14deg)' }}>
+                {this.state.complete ? '已完成' : '已失效'}
+              </span>
+            </div>
+            <Card
+              style={{
+                boxShadow:
+                  "0 3px 5px 0 rgba(0,0,0,0.2), 0 3px 5px 0 rgba(0,0,0,0.05)", position: 'relative', zIndex: '2'
+              }}
+            >
+              <Card.Header
+                title={
+                  <div>
+                    <div style={{ float: "left", marginRight: 4 }}>
+                      <img
+                        alt=""
+                        style={{
+                          width: "32px",
+                          height: "32px",
+                          borderRadius: "16px"
+                        }}
+                        src={this.props.avatar}
+                      />
+                    </div>
+                    <div style={{ flexDirection: "column", display: "flex" }}>
+                      <span style={{ fontSize: "0.9em" }}>
+                        {this.props.nickname}
+                      </span>
+                      <span style={{ color: "grey", fontSize: "0.5em", marginTop: 4 }}>
+                        {this.props.time}
+                      </span>{" "}
+                    </div>
+                  </div>
+                }
+                // thumb="https://gw.alipayobjects.com/zos/rmsportal/MRhHctKOineMbKAZslML.jpg"
+                extra={this.showExtra()}
+              />
+              <Gallery photos={this.props.photos} />
+              <Card.Body>
                 <div>
-                  <div style={{ float: "left", marginRight: 4 }}>
-                    <img
-                      alt=""
+                  <div >
+                    <span style={{ lineHeight: '1.5' }}>{this.props.description}</span>
+                    <span
                       style={{
-                        width: "32px",
-                        height: "32px",
-                        borderRadius: "16px"
+                        fontSize: "1.8em",
+                        fontWeight: "bold",
+                        float: "right",
+                        color: "#1DA57A"
                       }}
-                      src={this.props.avatar}
-                    />
-                  </div>
-                  <div style={{ flexDirection: "column", display: "flex" }}>
-                    <span style={{ fontSize: "0.9em" }}>
-                      {this.props.nickname}
+                    >
+                      {"￥" + this.props.amount}
                     </span>
-                    <span style={{ color: "grey", fontSize: "0.5em", marginTop: 4 }}>
-                      {this.props.time}
-                    </span>{" "}
                   </div>
-                </div>
-              }
-              // thumb="https://gw.alipayobjects.com/zos/rmsportal/MRhHctKOineMbKAZslML.jpg"
-              extra={this.showExtra()}
-            />
-            <Gallery photos={this.props.photos} />
-            <Card.Body>
-              <div>
-                <span style={{ lineHeight: '1.5' }}>{this.props.description}</span>
-                {<span
-                  style={{
-                    fontSize: "2em",
-                    fontWeight: "bold",
-                    float: "right",
-                    color: "#1DA57A"
-                  }}
-                >
-                  {"￥" + this.props.amount}
-                </span>}
-              </div>
-              <WhiteSpace size="xs" />
-              {/* <ImgDisplay /> */}
-            </Card.Body>
-            <Card.Footer content={this.props.title ? this.showSchool(this.props.school_id) : ''} extra={this.props.title ? this.showBadge(this.state.status) : ''} />
-          </Card>
-        </div>
+                  <div style={{clear:"both"}}>
 
-      </WingBlank>
+                  </div>
+                  {
+                    (!this.props.message) || (this.state.newData.length == 0)
+                      ? ''
+                      : <div style={{ marginTop: '6px' }}>
+                        <div style={{
+                          width: 0, height: 0,
+                          borderWidth: '0 8px 8px',
+                          borderStyle: 'solid',
+                          borderColor: 'transparent transparent #EEE',
+                          marginLeft: '10px',
+                          position: 'relative'
+                        }}></div>
+                        <span style={{ display: 'block', height: 'auto', backgroundColor: '#eee', padding: '4px 0', paddingLeft: '8px' }}>
+                          {
+                            this.state.newData.map(v => {
+                              return (
+                                <span style={{ display: 'block', fontSize: '0.8em', lineHeight: '1.5' }}>
+                                  <span style={{ color: '#59647E' }}>
+                                    {v.user_info.nickname}
+                                  </span>：{v.content}
+                                </span>
+                              )
+                            })
+                          }
+                        </span>
+                      </div>
+                  }
+
+                </div>
+                <WhiteSpace size="xs" />
+                {/* <ImgDisplay /> */}
+              </Card.Body>
+              <Card.Footer content={this.props.title ? this.showSchool(this.props.school_id) : ''} extra={this.props.title ? this.showBadge(this.state.status) : ''} />
+            </Card>
+          </div>
+
+        </WingBlank>
+
+      </div>
     );
   }
 }

@@ -4,6 +4,7 @@ import Register from "./page/register/Register";
 import { Route, Switch } from "react-router";
 import { HashRouter } from "react-router-dom";
 import MainLayout from "./MainLayout";
+import OrderDetails from "./page/orderDetails/index" 
 
 class App extends React.Component {
   constructor(props) {
@@ -56,11 +57,15 @@ class App extends React.Component {
           <Route path="/" exact component={MainLayout} />
           <Route path="/login" component={Submit} />
           <Route path="/submit/" component={MainLayout} />
+          <Route path="/grade/" component={MainLayout} />
+          <Route path="/myGrade/" component={MainLayout} />
           <Route path={`/my/`} component={MainLayout} />
           <Route path={`/register`} component={Register} />
           <Route path="/a/:id" component={MainLayout} />
           <Route path="/s/:id" component={MainLayout} />
-          <Route path="/w/:id" component={MainLayout} />
+          <Route path="/w/:id" component={OrderDetails} />
+          <Route path="/attention" component={MainLayout} />
+          <Route path="/help" component={MainLayout} />
           <Route path="/review" component={MainLayout} />
           <Route path="/mylist/:id" component={MainLayout} />
           <Route path="/mylist" component={MainLayout} />

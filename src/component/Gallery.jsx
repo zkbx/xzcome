@@ -61,6 +61,7 @@ export default class gallery extends React.Component {
     this.gotoPrevious = this.gotoPrevious.bind(this);
   }
   openLightbox(event, obj) {
+    event.stopPropagation(); 
     this.setState({
       currentImage: obj.index,
       lightboxIsOpen: true
