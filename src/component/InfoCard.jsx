@@ -1,63 +1,9 @@
 import React from "react";
-import { WingBlank, Card, WhiteSpace, Button, Modal, Badge } from "antd-mobile";
+import { WingBlank, Card, WhiteSpace, Button, Modal, Badge,InputItem } from "antd-mobile";
 import instance from "../utlis/api";
 import Gallery from "./Gallery";
-import { showQQ } from "../utlis/utlis";
+import { showQQ,toLogin } from "../utlis/utlis";
 import { schoolMap } from "../Data"
-
-let message = [
-  {
-    id: 1,
-    infoboard_id: 1,
-    user: {
-      id: 1,
-      nickname: '啊是大',
-      avatar: '',
-      school_id: ''
-    },
-    content: 'alallala'
-  }, {
-    id: 1,
-    infoboard_id: 1,
-    user: {
-      id: 1,
-      nickname: '啊是大',
-      avatar: '',
-      school_id: ''
-    },
-    content: 'alallala'
-  }, {
-    id: 1,
-    infoboard_id: 1,
-    user: {
-      id: 1,
-      nickname: '啊是大',
-      avatar: '',
-      school_id: ''
-    },
-    content: 'alallala'
-  }, {
-    id: 1,
-    infoboard_id: 1,
-    user: {
-      id: 1,
-      nickname: '啊是大',
-      avatar: '',
-      school_id: ''
-    },
-    content: 'alallala'
-  }, {
-    id: 1,
-    infoboard_id: 1,
-    user: {
-      id: 1,
-      nickname: '啊是大',
-      avatar: '',
-      school_id: ''
-    },
-    content: 'alallala'
-  },
-]
 
 
 export default class InfoCard extends React.Component {
@@ -77,8 +23,35 @@ export default class InfoCard extends React.Component {
       user_id: user_id,
       role: role,
       showhidden: 1,
-      newData: []
+      newshowhidden: 1,
+      newData: [],
+      showContact:false
     };
+  }
+
+
+  flesh(){
+    instance
+      .post('/message/query',
+        {
+          infoboard_id: this.props.id,
+          school_id: this.props.school_id,
+        }
+      )
+      .then(response => {
+        this.setState({
+          messageList: response.data.data.reverse()
+        }, () => {
+          let newData = []
+          // let len = this.state.messageList.length > 3 ? 3 : this.state.messageList.length
+          for (let i = 0; i < this.state.messageList.length; i++) {
+            newData.push(this.state.messageList[i])
+          }
+          this.setState({
+            newData: newData.reverse()
+          })
+        })
+      })
   }
   componentWillMount() {
     instance
@@ -93,8 +66,8 @@ export default class InfoCard extends React.Component {
           messageList: response.data.data.reverse()
         }, () => {
           let newData = []
-          let len = this.state.messageList.length > 3 ? 3 : this.state.messageList.length
-          for (let i = 0; i < len; i++) {
+          // let len = this.state.messageList.length > 3 ? 3 : this.state.messageList.length
+          for (let i = 0; i < this.state.messageList.length; i++) {
             newData.push(this.state.messageList[i])
           }
           this.setState({
@@ -104,10 +77,11 @@ export default class InfoCard extends React.Component {
       })
   }
 
-  showExtra() {
+  showExtra(e) {
+    let that = this
+
     if (this.props.title) {
       if (this.props.review) {
-        console.log(this.state.status)
         if (this.state.status == 0) {
           return (
             <Button
@@ -178,49 +152,48 @@ export default class InfoCard extends React.Component {
           return
         }
 
-      } else {
-        if (this.state.status === 1) {
-          return (
-            <div>
-              <Button
-                size="small"
-                inline
-                onClick={(event) => {
-                  event.stopPropagation();
-                  Modal.alert("提示", "任务是否完成？", [
-                    {
-                      text: "否"
-                    },
-                    {
-                      text: "是",
-                      onPress: () => {
-                        console.log("第0个按钮被点击了");
-                        const data = {
-                          status: 2
-                        };
-                        const remoteURL =
-                          "/self/infoboard/" + this.props.id + "/update";
-                        instance.post(remoteURL, data,{
-                          headers: {
-                            Authorization: "Bearer " + window.localStorage.getItem('token')
-                          }
-                        }).then(response => {
-                          this.setState({
-                            status: 2
-                          });
-                        });
-                      }
-                    }
-                  ]);
-                }}
-              >
-                完成
-              </Button>
-            </div>
-          )
-        }
-      }
+      } else if (this.state.status == 1) {
 
+        return (
+          <div>
+            <Button
+              size="small"
+              inline
+              onClick={(event) => {
+                event.stopPropagation();
+                Modal.alert("提示", "任务是否完成？", [
+                  {
+                    text: "否"
+                  },
+                  {
+                    text: "是",
+                    onPress: () => {
+                      console.log("第0个按钮被点击了");
+                      const data = {
+                        status: 2
+                      };
+                      const remoteURL =
+                        "/self/infoboard/" + this.props.id + "/update";
+                      instance.post(remoteURL, data, {
+                        headers: {
+                          Authorization: "Bearer " + window.localStorage.getItem('token')
+                        }
+                      }).then(response => {
+                        this.setState({
+                          status: 2
+                        });
+                      });
+                    }
+                  }
+                ]);
+              }}
+            >
+              完成
+              </Button>
+          </div>
+        )
+
+      }
 
     } else {
       // console.log(this.props.id)
@@ -261,8 +234,51 @@ export default class InfoCard extends React.Component {
           隐藏
             </Button>)
 
-      } else {
-        if (this.state.user_id == this.props.user_id) {
+      } else if (this.state.user_id == this.props.user_id) {
+        if (e) {
+          return (
+            <div>
+              <Button
+                size="small"
+                inline
+                onClick={(event) => {
+                  event.stopPropagation();
+                  Modal.alert("提示", "是否取消留言推送？", [
+                    {
+                      text: "否"
+                    },
+                    {
+                      text: "是",
+                      onPress: () => {
+                        // console.log("第0个按钮被点击了");
+                        const data = {
+                          infoboard_id: this.props.id,
+                          school_id: this.props.school_id,
+                          user_id: JSON.parse(window.localStorage["userinfo"]).id
+                        };
+                        const remoteURL =
+                          "/self/infoboard/" + this.props.id + "/update";
+                        instance.post('/ispush/delete', data, {
+                          headers: {
+                            Authorization: "Bearer " + window.localStorage.getItem('token')
+                          }
+                        }).then(response => {
+                          this.setState({
+                            newshowhidden: 3
+                          });
+                        });
+                      }
+                    }
+                  ]);
+                }}
+              >
+                取消推送
+        </Button>
+            </div>
+          )
+
+        }
+        else {
           return (
             <div>
               <Button
@@ -299,39 +315,43 @@ export default class InfoCard extends React.Component {
             </div>
           )
         }
+
+      } else {
+        return (
+          <Button
+            size="small"
+            inline
+            onClick={(event) => {
+              event.stopPropagation();
+              var title = "";
+              switch (this.props.contackKind) {
+                case "0010":
+                  title = "请联系QQ";
+                  showQQ(this.props.contact);
+                  return;
+                case "0020":
+                  title = "请联系微信";
+                  break;
+                case "0030":
+                  title = "请联系电话";
+                  break;
+                default:
+                  break;
+              }
+              Modal.alert(title, this.props.contact, [
+                {
+                  text: "Ok"
+                }
+              ]);
+            }}
+          >
+            {this.props.buttonText}
+          </Button>
+        )
       }
 
-      return (
-        <Button
-          size="small"
-          inline
-          onClick={(event) => {
-            event.stopPropagation();
-            var title = "";
-            switch (this.props.contackKind) {
-              case "0010":
-                title = "请联系QQ";
-                showQQ(this.props.contact);
-                return;
-              case "0020":
-                title = "请联系微信";
-                break;
-              case "0030":
-                title = "请联系电话";
-                break;
-              default:
-                break;
-            }
-            Modal.alert(title, this.props.contact, [
-              {
-                text: "Ok"
-              }
-            ]);
-          }}
-        >
-          {this.props.buttonText}
-        </Button>
-      )
+
+
     }
   }
 
@@ -386,21 +406,63 @@ export default class InfoCard extends React.Component {
 
   }
 
+  submit() {
+    let reg = /^\s*$/g
+    if (!window.localStorage.getItem('token')) {
+      toLogin(1)
+      return
+    }
+
+    if (reg.test(this.state.content)) {
+      Modal.alert("提示", "输入内容不得为空！", [
+        {
+          text: "确定",
+        }
+      ]);
+      return
+    } else {
+      this.setState({ animating: true });
+      instance
+        .post('/message',
+          {
+            user_id: this.props.user_id,
+            infoboard_id: this.props.id,
+            school_id: this.props.school_id,
+            content: this.state.content
+          },
+          {
+            headers: {
+              Authorization: "Bearer " + window.localStorage["token"]
+            }
+          }
+        )
+        .then(response => {
+          this.setState({
+            showContact: false,
+            flesh: true,
+            content: ''
+          })
+          this.flesh()
+        })
+    }
+  }
+
   render() {
-
-
-
-
     return (
-      <div onClick={() => { 
+      <div onClick={() => {
         window.location = `#/w/${this.props.id}`;
-        }}>
+      }}>
         <WingBlank size="lg" >
           <WhiteSpace size="lg" />
           <div style={{ position: 'relative' }}>
             <div style={{ borderRadius: '5px', position: 'absolute', width: '100%', height: '100%', top: '0', left: '0', backgroundColor: 'rgba(0,0,0,0.2)', zIndex: `${this.state.showhidden}` }}>
               <span style={{ position: 'absolute', left: '50%', top: '50%', marginLeft: '-85px', marginTop: '-40px', fontSize: '30px', fontWeight: 'bold', display: 'block', lineHeight: '2.5em', width: '150px', border: '3px solid #000', borderRadius: '10px', textAlign: 'center', transform: 'rotate(14deg)' }}>
                 {this.state.complete ? '已完成' : '已失效'}
+              </span>
+            </div>
+            <div style={{ borderRadius: '5px', position: 'absolute', width: '100%', height: '100%', top: '0', left: '0', backgroundColor: 'rgba(0,0,0,0.2)', zIndex: `${this.state.newshowhidden}` }}>
+              <span style={{ position: 'absolute', left: '50%', top: '50%', marginLeft: '-85px', marginTop: '-40px', fontSize: '30px', fontWeight: 'bold', display: 'block', lineHeight: '2.5em', width: '150px', border: '3px solid #000', borderRadius: '10px', textAlign: 'center', transform: 'rotate(14deg)' }}>
+                已取消
               </span>
             </div>
             <Card
@@ -434,7 +496,7 @@ export default class InfoCard extends React.Component {
                   </div>
                 }
                 // thumb="https://gw.alipayobjects.com/zos/rmsportal/MRhHctKOineMbKAZslML.jpg"
-                extra={this.showExtra()}
+                extra={this.showExtra(this.state.ispush)}
               />
               <Gallery photos={this.props.photos} />
               <Card.Body>
@@ -452,9 +514,17 @@ export default class InfoCard extends React.Component {
                       {"￥" + this.props.amount}
                     </span>
                   </div>
-                  <div style={{clear:"both"}}>
+                  <div style={{ clear: "both" }}>
 
                   </div>
+                  <span style={{ display: 'block', height: '16px', marginTop: '10px' }}>
+                    <img onClick={(event) => {
+                      event.stopPropagation();
+                      this.setState({
+                        showContact: true
+                      })
+                    }} style={{ height: '16px', float: 'right' }} src={require('../source/comment.png')} alt="" />
+                  </span>
                   {
                     (!this.props.message) || (this.state.newData.length == 0)
                       ? ''
@@ -467,6 +537,7 @@ export default class InfoCard extends React.Component {
                           marginLeft: '10px',
                           position: 'relative'
                         }}></div>
+
                         <span style={{ display: 'block', height: 'auto', backgroundColor: '#eee', padding: '4px 0', paddingLeft: '8px' }}>
                           {
                             this.state.newData.map(v => {
@@ -484,14 +555,33 @@ export default class InfoCard extends React.Component {
                   }
 
                 </div>
-                <WhiteSpace size="xs" />
                 {/* <ImgDisplay /> */}
               </Card.Body>
-              <Card.Footer content={this.props.title ? this.showSchool(this.props.school_id) : ''} extra={this.props.title ? this.showBadge(this.state.status) : ''} />
+              <Card.Footer content={this.props.title || this.props.ispush ? this.showSchool(this.props.school_id) : ''} extra={this.props.title ? this.showBadge(this.state.status) : ''} />
             </Card>
           </div>
 
         </WingBlank>
+
+        {
+          this.state.showContact ? <div  onClick={(event) => {
+            event.stopPropagation();}} style={{ position: 'fixed', bottom: '0', width: '100%',zIndex:5}}>
+            <InputItem
+              placeholder="请输入内容"
+             
+              onChange={(v) => { this.setState({ content: v }) }}
+              value={this.state.content}
+              extra={<a
+
+                onClick={
+                  this.submit.bind(this)
+                }
+
+              >留言</a>}
+            />
+          </div> : ''
+        }
+         
 
       </div>
     );

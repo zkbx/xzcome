@@ -5,6 +5,7 @@ import { Route, Switch } from "react-router";
 import { HashRouter } from "react-router-dom";
 import MainLayout from "./MainLayout";
 import OrderDetails from "./page/orderDetails/index" 
+import Share from "./page/share/index"
 
 class App extends React.Component {
   constructor(props) {
@@ -59,6 +60,7 @@ class App extends React.Component {
           <Route path="/submit/" component={MainLayout} />
           <Route path="/grade/" component={MainLayout} />
           <Route path="/myGrade/" component={MainLayout} />
+          <Route path="/share/" component={Share} />
           <Route path={`/my/`} component={MainLayout} />
           <Route path={`/register`} component={Register} />
           <Route path="/a/:id" component={MainLayout} />

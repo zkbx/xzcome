@@ -43,6 +43,7 @@ class MyInfo extends React.Component {
         unlogin: true,
         kindArr: kindArr,
         modal: false,
+        modal1: false,
       }
 
     };
@@ -85,6 +86,8 @@ class MyInfo extends React.Component {
     });
   }
   componentWillMount() {
+
+    
     if ("userinfo" in window.localStorage) {
       this.setState({ userinfo: JSON.parse(window.localStorage["userinfo"]) });
     } else if (this.state.token !== "") {
@@ -99,19 +102,28 @@ class MyInfo extends React.Component {
   }
 
   showModal = key => (e) => {
-    if(this.state.userinfo.unlogin){
+    if (this.state.userinfo.unlogin) {
       toLogin(1)
-    }else if (!this.state.userinfo.wx_openid) {
+    } else if (!this.state.userinfo.wx_openid) {
       e.preventDefault(); // 修复 Android 上点击穿透
       this.setState({
         [key]: true,
       });
     }
-    
+
+  }
+  showModal1 = key => (e) => {
+
+    e.preventDefault(); // 修复 Android 上点击穿透
+    this.setState({
+      [key]: true,
+    });
+
+
   }
   onClose = key => () => {
     this.setState({
-      modal: false,
+      [key]: false,
     });
   }
   onWrapTouchStart = (e) => {
@@ -186,7 +198,7 @@ class MyInfo extends React.Component {
                   this.state.userinfo.unlogin ? (
                     <div>
                       <span style={{ fontSize: "0.5em", color: "grey" }}>
-                        未登陆
+                        未登录
                       </span>
                     </div>
                   ) : (
@@ -197,7 +209,7 @@ class MyInfo extends React.Component {
                         src={require('./source/renzhen.svg')}
                       />
                       <span style={{ fontSize: "0.5em", color: "grey" }}>
-                        已登陆
+                        已登录
                       </span>
                     </div>
                   )}
@@ -229,7 +241,7 @@ class MyInfo extends React.Component {
                 Toast.hide();
                 this.forceUpdate();
                 this.setState({ showSchool: v })
-                
+
               });
             }}
           >
@@ -268,7 +280,7 @@ class MyInfo extends React.Component {
           >
             接单管理
           </Item>
-
+          
           {this.state.userinfo.role > 0 && (
             <Item
               arrow="horizontal"
@@ -314,6 +326,9 @@ class MyInfo extends React.Component {
           >
             QQ
           </Item>
+          <Item>
+          <a target="_blank" href="//shang.qq.com/wpa/qunwpa?idkey=f43f124d8e7d14901b364bf9181992f9fab535071efc0d87b6cde0de1baa3c4a">加群</a>
+          </Item>
           {/* <Item
             arrow="horizontal"
             multipleLine
@@ -327,7 +342,7 @@ class MyInfo extends React.Component {
             arrow="horizontal"
             multipleLine
             onClick={this.showModal('modal')}
-  
+
             extra={this.state.userinfo.wx_openid ? "已绑定" : "未绑定"}
             thumb={require('./source/wx.svg')}
           >
@@ -347,13 +362,18 @@ class MyInfo extends React.Component {
           <Item
             arrow="horizontal"
             multipleLine
-            onClick={() => {
-              window.location.href =
-                "mqqwpa://im/chat?chat_type=wpa&uin=" +
-                "3432232421" +
-                "&version=1&src_type=web&web_src=oicqzone.com";
-              showQQ("3432232421", "客服QQ已复制，快去添加她为好友吧");
-            }}
+            onClick={
+              // debugger
+              this.showModal1('modal1')
+
+
+              // () => {
+              // window.location.href =
+              //   "mqqwpa://im/chat?chat_type=wpa&uin=" +
+              //   "3432232421" +
+              //   "&version=1&src_type=web&web_src=oicqzone.com";
+              // showQQ("3432232421", "客服QQ已复制，快去添加她为好友吧");}
+            }
             thumb={require('./source/support.svg')}
           >
             联系客服
@@ -373,14 +393,48 @@ class MyInfo extends React.Component {
           visible={this.state.modal}
           transparent
           maskClosable={false}
-          onClose={this.onClose()}
+          onClose={this.onClose('modal')}
           title="提示"
-          footer={[{ text: '确定', onPress: () => { this.onClose()(); } }]}
+          footer={[{ text: '确定', onPress: () => { this.onClose('modal')(); } }]}
           wrapProps={{ onTouchStart: this.onWrapTouchStart }}
         >
-          <div style={{ height: 'auto'}}>
+          <div style={{ height: 'auto' }}>
             QQ用户请在微信端关注公众号 学长来咯 后进行绑定<br />
-             <img src={require('./source/qcode.jpg')} style={{width:'60%'}} alt=""/>
+            <img src={require('./source/qcode.jpg')} style={{ width: '60%' }} alt="" />
+          </div>
+        </Modal>
+        <Modal
+          visible={this.state.modal1}
+          transparent
+          maskClosable={false}
+          onClose={this.onClose('modal1')}
+          title="提示"
+          footer={[{ text: '好的', onPress: () => { this.onClose('modal1')(); } }]}
+          wrapProps={{ onTouchStart: this.onWrapTouchStart }}
+        >
+          <div style={{ height: 'auto', textAlign: 'center' }}>
+            请扫描下方二维码<br />快快添加客服为好友吧
+           <div style={{ display: 'flex', justifyContent: 'space-around' ,marginTop:'10px'}}>
+              <div>
+                <img
+                  src={require('../../source/QQqcode.png')}
+                  style={{ display: 'block', width: '85px', height: '85px'}}
+                  alt="" />
+                <span style={{display:'block',textAlign:'center'}}>
+                  QQ
+                </span>
+              </div>
+              <div>
+                <img
+                  src={require('../../source/weixinqcode.png')}
+                  style={{ display: 'block', width: '85px', height: '85px' }}
+                  alt="" />
+                <span style={{display:'block',textAlign:'center'}}>
+                  微信
+                </span>
+              </div>
+
+            </div>
           </div>
         </Modal>
       </div>

@@ -1,11 +1,13 @@
 import React from "react";
-import { Tabs, Modal, Icon, Badge } from "antd-mobile";
+import { Tabs, Modal, Icon, Badge, InputItem } from "antd-mobile";
 import parseUrl from "../../utlis/parseUrl";
 
+import { Login } from "../../utlis/qqLogin";
+import getUserInfo from "../../utlis/getUserInfo";
 import ContentList from "./component/contentList"
 import { kindMap } from "../../Data"
 import Gallery from "../../component/Gallery";
-import { showQQ, toLogin } from "../../utlis/utlis"
+import { showQQ, toLogin, isWeiXin } from "../../utlis/utlis"
 import getDateDiff from "../../utlis/getDateDiff";
 import instance from "../../utlis/api";
 
@@ -60,7 +62,9 @@ class InfoBoard extends React.Component {
       modal: false,
       tabs: kindArr,
       showDown: false,
-      attentionTabs: attentionArr
+      attentionTabs: attentionArr,
+      user_id: user_id,
+      flesh: true
     };
 
     // console.info(this.state.selectTab, this.state.selectID);
@@ -94,7 +98,7 @@ class InfoBoard extends React.Component {
       );
     }
 
-    
+
 
   }
 
@@ -104,24 +108,37 @@ class InfoBoard extends React.Component {
     });
   }
 
+  
 
 
-  renderContent = tab => (
-    <div
-      className="am-list-body my-body"
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        height: "150px",
-        backgroundColor: "#fff"
-      }}
-    >
-      <p>Content of {tab.title}</p>
-    </div>
-  );
+ 
+
 
   render() {
+
+    // if (isWeiXin()) {
+    // console.log(" 是来自微信内置浏览器")
+    // alert(" 是来自微信内置浏览器")
+
+
+    // if ("code" in args) {
+
+    // if (window.localStorage.getItem('token')) {
+    //   window.location = "#/";
+    // } else {
+    //   window.localStorage.setItem('url','')
+    //   toLogin(1)
+
+    // }
+
+
+    // } else if ("token" in window.localStorage) {
+    //   this.state.token = window.localStorage.token;
+    // }
+    // } else {
+    //   console.log("不是来自微信内置浏览器")
+    // }
+
     const tabs = [
       { title: <span style={{ fontSize: '18px' }}>所有</span> },
       { title: <span style={{ fontSize: '18px' }}>接单</span> }
@@ -185,6 +202,8 @@ class InfoBoard extends React.Component {
                     selectID={this.state.ID}
                     kind={v.value}
                     message={true}
+                    flesh={this.state.flesh}
+                    onRef={this.onRef}
                   />
                 )
               })
@@ -208,6 +227,9 @@ class InfoBoard extends React.Component {
                     selectID={this.state.ID}
                     kind={v.value}
                     message={true}
+
+                    flesh={this.state.flesh}
+                    onRef={this.onRef}
                   />
                 )
               })
@@ -280,7 +302,7 @@ class InfoBoard extends React.Component {
             </span>
           </div>
         </Modal> : ''} */}
-
+        
 
       </div>
     );

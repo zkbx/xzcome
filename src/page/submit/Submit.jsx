@@ -10,7 +10,8 @@ import {
   Checkbox,
   Flex,
   Toast,
-  Modal
+  Modal,
+  Switch
 } from "antd-mobile";
 import { createForm } from "rc-form";
 import instance from "../../utlis/api";
@@ -18,6 +19,16 @@ import { kindMap, contact_kind, schoolMap } from "../../Data";
 import { toLogin } from "../../utlis/utlis";
 import ImagePickerExample from './component/imagePick'
 
+function closest(el, selector) {
+  const matchesSelector = el.matches || el.webkitMatchesSelector || el.mozMatchesSelector || el.msMatchesSelector;
+  while (el) {
+    if (matchesSelector.call(el, selector)) {
+      return el;
+    }
+    el = el.parentElement;
+  }
+  return null;
+}
 
 const isIPhone = new RegExp("\\biPhone\\b|\\biPod\\b", "i").test(
   window.navigator.userAgent
@@ -40,7 +51,7 @@ let client = new OSS({
 });
 
 
-const FuckJsCallbackIWantImg = function (imgFiles, info) {
+const FuckJsCallbackIWantImg = function (imgFiles, info, ispush) {
   if (imgFiles.length === 0) {
     const kind = info.kind[0];
     const school_id = info["school_id"][0];
@@ -65,6 +76,28 @@ const FuckJsCallbackIWantImg = function (imgFiles, info) {
         Toast.success("发布成功", 1, () => {
           window.location = "#/mylist/" + String(response.data.data.id);
         });
+        if (ispush) {
+          instance
+            .post("/ispush", {
+              user_id: info["id"],
+              school_id: school_id,
+              infoboard_id: response.data.data.id
+            }, {
+                headers: {
+                  Authorization: "Bearer " + window.localStorage.getItem('token')
+                }
+              }).then(response => {
+                // Toast.success("发布成功", 1, () => {
+                //   window.location = "#/mylist/" + String(response.data.data.id);
+                // });
+                console.log(111123)
+
+              }).catch(function (error) {
+                console.log(error);
+                Toast.fail("发布失败");
+              });
+        }
+
       })
       .catch(function (error) {
         console.log(error);
@@ -134,15 +167,30 @@ const FuckJsCallbackIWantImg = function (imgFiles, info) {
 class BasicInput extends React.Component {
   state = {
     choosedContact: false,
-    kind: ""
+    kind: "",
+    checked: false,
+    modal1: false
   };
   componentWillMount() {
-    if ("userinfo" in window.localStorage) {
+    if (window.localStorage.getItem('userinfo')) {
       this.setState({ userinfo: JSON.parse(window.localStorage["userinfo"]) });
     } else {
+      // window.localStorage.setItem('url', 'submit')
       toLogin(1);
       this.setState({ userinfo: {} });
     }
+  }
+
+  showModal = key => (e) => {
+    e.preventDefault(); // 修复 Android 上点击穿透
+    this.setState({
+      [key]: true,
+    });
+  }
+  onClose = key => () => {
+    this.setState({
+      [key]: false,
+    });
   }
 
   submit = () => {
@@ -201,9 +249,20 @@ class BasicInput extends React.Component {
         value.anonymous = value.anonymous[0];
       }
       value.id = this.state.userinfo.id;
-      FuckJsCallbackIWantImg(imgs, value);
+      FuckJsCallbackIWantImg(imgs, value, this.state.checked);
     });
   };
+
+  onWrapTouchStart = (e) => {
+    // fix touch to scroll background page on iOS
+    if (!/iPhone|iPod|iPad/i.test(navigator.userAgent)) {
+      return;
+    }
+    const pNode = closest(e.target, '.am-modal-content');
+    if (!pNode) {
+      e.preventDefault();
+    }
+  }
 
   render() {
     const { getFieldProps, getFieldError } = this.props.form;
@@ -386,6 +445,10 @@ class BasicInput extends React.Component {
         break;
     }
 
+    // console.log(window.localStorage.getItem('token'))
+
+
+
     return (
       <div>
         {/* <div className={styles.ywheader}>
@@ -441,34 +504,47 @@ class BasicInput extends React.Component {
             onErrorClick={() => {
               alert(getFieldError("amount").join("、"));
             }}
-            maxLength = {6}
-          placeholder="5,5元,面议...(长度限制6位)"
-        // moneyKeyboardAlign="right"
-        
-      >
-        订单金额
+            maxLength={6}
+            placeholder="5,5元,面议...(长度限制6位)"
+          // moneyKeyboardAlign="right"
+
+          >
+            订单金额
             </InputItem>
-          
+
+          <List.Item
+            extra={<Switch
+              checked={this.state.checked}
+              onChange={() => {
+                this.setState({
+                  checked: !this.state.checked,
+                });
+              }}
+            />}
+          >是否接受留言推送
+          </List.Item>
+
+
         </List>
 
-      <List renderHeader={() => "描述"}>
-        <ImagePickerExample form={this.props.form} />
+        <List renderHeader={() => "描述"}>
+          <ImagePickerExample form={this.props.form} />
 
-        <TextareaItem
-          {...getFieldProps("descipt", {
-            rules: [{ required: true, message: "请输入简要描述" }]
-          })}
-          rows={5}
-          count={100}
-          error={!!getFieldError("descipt")}
-          onErrorClick={() => {
-            alert(getFieldError("descipt").join("、"));
-          }}
-          placeholder={desPlaceholder}
-        />
-      </List>
-      <Flex>
-        <Flex.Item>
+          <TextareaItem
+            {...getFieldProps("descipt", {
+              rules: [{ required: true, message: "请输入简要描述" }]
+            })}
+            rows={5}
+            count={100}
+            error={!!getFieldError("descipt")}
+            onErrorClick={() => {
+              alert(getFieldError("descipt").join("、"));
+            }}
+            placeholder={desPlaceholder}
+          />
+        </List>
+        <div style={{display:'flex',justifyContent:'space-between'}}>
+
           <Checkbox.AgreeItem
             data-seed="logId"
             onChange={e => {
@@ -483,18 +559,55 @@ class BasicInput extends React.Component {
                 alert("agree it");
                 this.setState({ agree: e.target.checked });
               }}
-            >
-              《免责声明》
+            >《免责声明》
               </a>
           </Checkbox.AgreeItem>
-        </Flex.Item>
-      </Flex>
-      <WingBlank size="lg">
-        <Button type="primary" onClick={this.submit}>
-          提交
+
+          <span onClick={this.showModal('modal1')} style={{ display: 'block' ,padding:'9px 0',lineHeight:'1.5',paddingRight:'16px',color:'#5a76c6'}}>
+            <img src={require('./images/why.png')} style={{width:'18px',height:'18px',verticalAlign:'middle',marginRight:'2px'}} alt=""/>快速审核
+            </span>
+
+        </div>
+        <WingBlank size="lg">
+          <Button type="primary" onClick={this.submit}>
+            提交
           </Button>
-      </WingBlank>
-      <WhiteSpace size="lg" />
+        </WingBlank>
+        <WhiteSpace size="lg" />
+        <Modal
+          visible={this.state.modal1}
+          transparent
+          maskClosable={true}
+          onClose={this.onClose('modal1')}
+          footer={[{ text: '取消', onPress: () => {this.onClose('modal1')(); } },{ text: '去分享页', onPress: () => {window.location ='#/share'} }]}
+          wrapProps={{ onTouchStart: this.onWrapTouchStart }}
+        >
+          <div style={{ height: 'auto', textAlign: 'center' }}>
+            请扫描下方二维码<br />快快添加客服为好友吧
+           <div style={{ display: 'flex', justifyContent: 'space-around' ,marginTop:'10px'}}>
+              <div>
+                <img
+                  src={require('../../source/QQqcode.png')}
+                  style={{ display: 'block', width: '85px', height: '85px'}}
+                  alt="" />
+                <span style={{display:'block',textAlign:'center'}}>
+                  QQ
+                </span>
+              </div>
+              <div>
+                <img
+                  src={require('../../source/weixinqcode.png')}
+                  style={{ display: 'block', width: '85px', height: '85px' }}
+                  alt="" />
+                <span style={{display:'block',textAlign:'center'}}>
+                  微信
+                </span>
+              </div>
+
+            </div>
+          </div>
+        
+        </Modal>
       </div >
     );
   }

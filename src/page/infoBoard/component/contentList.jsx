@@ -73,7 +73,7 @@ export default class ComtentList extends React.Component {
       myData: {},
       myRowIDs: [],
       sectionIDs: [],
-      selectID: this.props.match ? this.props.match.params.id : ''
+      selectID: this.props.match ? this.props.match.params.id : '',
     };
   }
 
@@ -105,11 +105,38 @@ export default class ComtentList extends React.Component {
 
   getData = (query, filter, pIndex = 0, callback) => {
     // console.log(filter)
-    const remoteURL = `/query/infoboard?` + urlEncode(filter);
-
+    
     // console.log(remoteURL)
+    if(this.props.ispush){
+      const remoteURL =  `/ispush/query?` + urlEncode(filter);
 
-    instance.post(remoteURL, query).then(response => {
+      let userinfo=JSON.parse(window.localStorage["userinfo"]) 
+      instance.post(remoteURL, {user_id:userinfo.id,school_id:userinfo.school_id}).then(response => {
+        if (response.data.code == 0) {
+  
+          let setData = this.state.myData
+          setData[pIndex] = response.data.data;
+          this.setState({ myData: setData });
+  
+          let setSectionIDs = this.state.sectionIDs;
+          setSectionIDs.push(pIndex);
+          this.setState({ sectionIDs: setSectionIDs })
+          let f = length => [...Array.from({ length }).keys()];
+  
+          let setMyRowIDs = this.state.myRowIDs
+          setMyRowIDs.push(f(this.state.myData[pIndex].length));
+          this.setState({ myRowIDs: setMyRowIDs })
+  
+          if (typeof callback === "function") {
+            callback();
+          }
+  
+        }
+      });
+    }else{
+      const remoteURL =  `/query/infoboard?` + urlEncode(filter);
+
+      instance.post(remoteURL, query).then(response => {
       if (response.data.code == 0) {
 
         let setData = this.state.myData
@@ -131,6 +158,8 @@ export default class ComtentList extends React.Component {
 
       }
     });
+    }
+    
 
 
   };
@@ -178,7 +207,7 @@ export default class ComtentList extends React.Component {
         school_id: this.state.school_id,
         status: 1,
       };
-      console.log(filter)
+      // console.log(filter)
       this.getData1(filter, setPageIndex++, () => {
         this.setState({
           dataSource: this.state.dataSource.cloneWithRowsAndSections(
@@ -197,16 +226,17 @@ export default class ComtentList extends React.Component {
 
   }
 
+ 
   onEndReached = event => {
     // load new data
     // hasMore: from backend data, indicates whether it is the last page, here is false
     if (this.state.isLoading && !this.state.hasMore) {
       return;
     }
-    console.log("reach end", event);
+    // console.log("reach end", event);
     this.setState({ isLoading: true });
     setTimeout(() => {
-      console.info("hell22");
+      // console.info("hell22");
       //   genData();
 
 
@@ -250,12 +280,19 @@ export default class ComtentList extends React.Component {
     }, 1000);
   };
 
-
-
+ 
   render() {
     const row = (rowData, sectionID, rowID) => {
       if (rowData) {
-        console.info(rowData);
+        // console.info(rowData);
+        // let isPush=false
+        // this.state.pushList.foreach(v=>{
+        //   if(v.infoboard_id==rowData.id){
+        //     isPush=true
+        //   }
+        // })
+        // console.log(this.props.ispush)
+        
         return (
           <InfoCard
             nickname={
@@ -280,6 +317,9 @@ export default class ComtentList extends React.Component {
             school_id={rowData.school_id}
             user_id={rowData.user.id}
             message={this.props.message}
+            ispush={this.props.ispush}
+ 
+
           />
         );
       }
@@ -292,7 +332,7 @@ export default class ComtentList extends React.Component {
         display: 'flex',
         flexDirection: 'column',
       }}>
-        {this.props.title ? <MyBar title={this.props.title} /> : ''}
+        {this.props.title=='信息审核' ? <MyBar title={this.props.title} /> : ''}
         <ListView
           ref={el => (this.lv = el)}
           dataSource={this.state.dataSource}
@@ -314,12 +354,13 @@ export default class ComtentList extends React.Component {
           }}
           pageSize={4}
           onScroll={() => {
-            console.log("scroll");
+            // console.log("scroll");
           }}
           scrollRenderAheadDistance={500}
           onEndReached={this.onEndReached}
           onEndReachedThreshold={100}
         />
+        
       </div>
 
     );
