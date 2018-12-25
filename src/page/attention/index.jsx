@@ -3,7 +3,7 @@ import MyBar from "../../component/MyBar"
 // import { kindMap } from "../../Data"
 import AttentionLi from './component/listItem'
 import instance from "../../utlis/api";
-import { Tabs, Badge } from "antd-mobile";
+import { Tabs, Badge,Modal } from "antd-mobile";
 
 
 
@@ -44,80 +44,88 @@ export default class Attention extends React.Component {
                 }
             )
             .then(response => {
-                let userArr = []
-                response.data.data.forEach(element => {
-                    userArr.push(element.kind)
-                });
-                let kindMapp = [
-                    {
-                        value: "310000",
-                        label: "跑腿",
-                        active: false
-                    },
-                    {
-                        value: "320000",
-                        label: "出售",
-                        active: false
-                    },
-                    {
-                        value: "330000",
-                        label: "求购",
-                        active: false
-                    },
-                    {
-                        value: "340000",
-                        label: "表白",
-                        active: false
-                    },
-                    {
-                        value: "350000",
-                        label: "兼职",
-                        active: false
-                    },
-                    {
-                        value: "360000",
-                        label: "租借",
-                        active: false
-                    },
-                    {
-                        value: "370000",
-                        label: "答疑",
-                        active: false
-                    },
-                    {
-                        value: "380000",
-                        label: "资料",
-                        active: false
-                    },
-                    {
-                        value: "390000",
-                        label: "选课",
-                        active: false
-                    },
-                    {
-                        value: "400000",
-                        label: "拼车",
-                        active: false
-                    },
-                    {
-                        value: "420000",
-                        label: "其他",
-                        active: false
-                    }
-                ]
-                console.log(1, kindMapp)
-
-                userArr.forEach((v) => {
-                    kindMapp.map(value => {
-                        if (v == value.value) {
-                            value.active = true
+                if (response.data.code == 0) {
+                    let userArr = []
+                    response.data.data.forEach(element => {
+                        userArr.push(element.kind)
+                    });
+                    let kindMapp = [
+                        {
+                            value: "310000",
+                            label: "跑腿",
+                            active: false
+                        },
+                        {
+                            value: "320000",
+                            label: "出售",
+                            active: false
+                        },
+                        {
+                            value: "330000",
+                            label: "求购",
+                            active: false
+                        },
+                        {
+                            value: "340000",
+                            label: "表白",
+                            active: false
+                        },
+                        {
+                            value: "350000",
+                            label: "兼职",
+                            active: false
+                        },
+                        {
+                            value: "360000",
+                            label: "租借",
+                            active: false
+                        },
+                        {
+                            value: "370000",
+                            label: "答疑",
+                            active: false
+                        },
+                        {
+                            value: "380000",
+                            label: "资料",
+                            active: false
+                        },
+                        {
+                            value: "390000",
+                            label: "选课",
+                            active: false
+                        },
+                        {
+                            value: "400000",
+                            label: "拼车",
+                            active: false
+                        },
+                        {
+                            value: "420000",
+                            label: "其他",
+                            active: false
                         }
+                    ]
+                    console.log(1, kindMapp)
+
+                    userArr.forEach((v) => {
+                        kindMapp.map(value => {
+                            if (v == value.value) {
+                                value.active = true
+                            }
+                        })
                     })
-                })
-                console.log(3, kindMapp)
-                that.setState({
-                    attMap: kindMapp
-                })
+                    console.log(3, kindMapp)
+                    that.setState({
+                        attMap: kindMapp
+                    })
+                } else {
+                    Modal.alert(
+                        "提示",
+                        "网络出了点小差，请稍后重新请求页面..."
+                    );
+                }
+
             })
 
 
@@ -134,81 +142,89 @@ export default class Attention extends React.Component {
                 }
             )
             .then(response => {
-                let userArr = []
-                response.data.data.forEach(element => {
-                    userArr.push(element.kind)
-                });
+                if (response.data.code == 0) {
+                    let userArr = []
+                    response.data.data.forEach(element => {
+                        userArr.push(element.kind)
+                    });
 
-                let kindMappp = [
-                    {
-                        value: "310000",
-                        label: "跑腿",
-                        active: false
-                    },
-                    {
-                        value: "320000",
-                        label: "出售",
-                        active: false
-                    },
-                    {
-                        value: "330000",
-                        label: "求购",
-                        active: false
-                    },
-                    {
-                        value: "340000",
-                        label: "表白",
-                        active: false
-                    },
-                    {
-                        value: "350000",
-                        label: "兼职",
-                        active: false
-                    },
-                    {
-                        value: "360000",
-                        label: "租借",
-                        active: false
-                    },
-                    {
-                        value: "370000",
-                        label: "答疑",
-                        active: false
-                    },
-                    {
-                        value: "380000",
-                        label: "资料",
-                        active: false
-                    },
-                    {
-                        value: "390000",
-                        label: "选课",
-                        active: false
-                    },
-                    {
-                        value: "400000",
-                        label: "拼车",
-                        active: false
-                    },
-                    {
-                        value: "420000",
-                        label: "其他",
-                        active: false
-                    }
-                ]
-
-                console.log(5, kindMappp)
-                userArr.forEach((v) => {
-                    kindMappp.map(value => {
-                        if (v == value.value) {
-                            value.active = true
+                    let kindMappp = [
+                        {
+                            value: "310000",
+                            label: "跑腿",
+                            active: false
+                        },
+                        {
+                            value: "320000",
+                            label: "出售",
+                            active: false
+                        },
+                        {
+                            value: "330000",
+                            label: "求购",
+                            active: false
+                        },
+                        {
+                            value: "340000",
+                            label: "表白",
+                            active: false
+                        },
+                        {
+                            value: "350000",
+                            label: "兼职",
+                            active: false
+                        },
+                        {
+                            value: "360000",
+                            label: "租借",
+                            active: false
+                        },
+                        {
+                            value: "370000",
+                            label: "答疑",
+                            active: false
+                        },
+                        {
+                            value: "380000",
+                            label: "资料",
+                            active: false
+                        },
+                        {
+                            value: "390000",
+                            label: "选课",
+                            active: false
+                        },
+                        {
+                            value: "400000",
+                            label: "拼车",
+                            active: false
+                        },
+                        {
+                            value: "420000",
+                            label: "其他",
+                            active: false
                         }
+                    ]
+
+                    console.log(5, kindMappp)
+                    userArr.forEach((v) => {
+                        kindMappp.map(value => {
+                            if (v == value.value) {
+                                value.active = true
+                            }
+                        })
                     })
-                })
-                console.log(6, kindMappp)
-                that.setState({
-                    pushMap: kindMappp
-                })
+                    console.log(6, kindMappp)
+                    that.setState({
+                        pushMap: kindMappp
+                    })
+                } else {
+                    Modal.alert(
+                        "提示",
+                        "网络出了点小差，请稍后重新请求页面..."
+                    );
+                }
+
 
             })
     }

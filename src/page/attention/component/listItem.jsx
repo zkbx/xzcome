@@ -1,6 +1,7 @@
 import React from "react";
 import { Button } from 'antd-mobile';
 import instance from "../../../utlis/api";
+import {Modal} from "antd-mobile"
 
 export default class AttentionLi extends React.Component {
     constructor(props) {
@@ -43,8 +44,16 @@ export default class AttentionLi extends React.Component {
                         }
                     }
                 ).then(response => {
-                    this.setState({ isLoad: false })
-                    this.setState({ showButton: !this.state.showButton })
+                    if (response.data.code == 0) {
+                        this.setState({ isLoad: false })
+                        this.setState({ showButton: !this.state.showButton })
+                    } else {
+                        Modal.alert(
+                            "提示",
+                            "网络出了点小差，请稍后重新请求页面..."
+                        );
+                    }
+
 
                 })
 
@@ -59,8 +68,17 @@ export default class AttentionLi extends React.Component {
                             Authorization: "Bearer " + window.localStorage.getItem('token')
                         }
                     }).then(response => {
-                        this.setState({ isLoad: false })
-                        this.setState({ showButton: !this.state.showButton })
+                        if (response.data.code == 0) {
+                            this.setState({ isLoad: false })
+                            this.setState({ showButton: !this.state.showButton })
+                        } else {
+                            Modal.alert(
+                                "提示",
+                                "网络出了点小差，请稍后重新请求页面..."
+                            );
+                        }
+
+
                     })
             }
         } else {
@@ -76,32 +94,48 @@ export default class AttentionLi extends React.Component {
                         }
                     }
                 ).then(response => {
-                    this.setState({ isLoad: false })
-                    this.setState({ showButton: !this.state.showButton })
+                    if (response.data.code == 0) {
+                        this.setState({ isLoad: false })
+                        this.setState({ showButton: !this.state.showButton })
 
-                    let tagArr = []
+                        let tagArr = []
 
-                    instance
-                        .post('/tags/query',
-                            {
-                                user_id: this.state.userself.id
-                            },
-                            {
-                                headers: {
-                                    Authorization: "Bearer " + window.localStorage["token"]
+                        instance
+                            .post('/tags/query',
+                                {
+                                    user_id: this.state.userself.id
+                                },
+                                {
+                                    headers: {
+                                        Authorization: "Bearer " + window.localStorage["token"]
+                                    }
                                 }
-                            }
-                        )
-                        .then(response => {
-                            response.data.data.forEach(element => {
-                                tagArr.push(element.kind)
-                            });
+                            )
+                            .then(response => {
+                                if (response.data.code == 0) {
+                                    response.data.data.forEach(element => {
+                                        tagArr.push(element.kind)
+                                    });
 
-                            let userData = JSON.parse(window.localStorage["userinfo"]);
+                                    let userData = JSON.parse(window.localStorage["userinfo"]);
 
-                            userData.tags = this.unique(tagArr)
-                            window.localStorage.setItem("userinfo", JSON.stringify(userData));
-                        })
+                                    userData.tags = this.unique(tagArr)
+                                    window.localStorage.setItem("userinfo", JSON.stringify(userData));
+                                } else {
+                                    Modal.alert(
+                                        "提示",
+                                        "网络出了点小差，请稍后重新请求页面..."
+                                    );
+                                }
+
+                            })
+                    } else {
+                        Modal.alert(
+                            "提示",
+                            "网络出了点小差，请稍后重新请求页面..."
+                        );
+                    }
+
 
                 })
 
@@ -116,14 +150,22 @@ export default class AttentionLi extends React.Component {
                             Authorization: "Bearer " + window.localStorage.getItem('token')
                         }
                     }).then(response => {
-                        this.setState({ isLoad: false })
-                        this.setState({ showButton: !this.state.showButton })
-                        let userData = JSON.parse(window.localStorage["userinfo"]);
-                        response.data.data.forEach(v => {
-                            userData.tags.push(v.kind)
-                        })
-                        userData.tags = this.unique(userData.tags)
-                        window.localStorage.setItem("userinfo", JSON.stringify(userData));
+                        if (response.data.code == 0) {
+                            this.setState({ isLoad: false })
+                            this.setState({ showButton: !this.state.showButton })
+                            let userData = JSON.parse(window.localStorage["userinfo"]);
+                            response.data.data.forEach(v => {
+                                userData.tags.push(v.kind)
+                            })
+                            userData.tags = this.unique(userData.tags)
+                            window.localStorage.setItem("userinfo", JSON.stringify(userData));
+                        } else {
+                            Modal.alert(
+                                "提示",
+                                "网络出了点小差，请稍后重新请求页面..."
+                            );
+                        }
+
                     })
             }
         }

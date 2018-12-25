@@ -60,11 +60,19 @@ class BasicInput extends React.Component {
         const remoteURL = "/infoboard/" + this.props.match.params.id;
 
         instance.get(remoteURL).then(response => {
-            that.setState({
-                showData: response.data.data
-            }, () => {
-                that.setAll()
-            })
+            if (response.data.code == 0) {
+                that.setState({
+                    showData: response.data.data
+                }, () => {
+                    that.setAll()
+                })
+            } else {
+                Modal.alert(
+                    "提示",
+                    "网络出了点小差，请稍后重新请求页面..."
+                );
+            }
+
         });
 
     }
@@ -78,10 +86,18 @@ class BasicInput extends React.Component {
                 }
             )
             .then(response => {
-                console.log(response.data.data)
-                this.setState({
-                    messageList: response.data.data
-                })
+                if (response.data.code == 0) {
+                    // console.log(response.data.data)
+                    this.setState({
+                        messageList: response.data.data
+                    })
+                } else {
+                    Modal.alert(
+                        "提示",
+                        "网络出了点小差，请稍后重新请求页面..."
+                    );
+                }
+
             })
     }
 
@@ -126,33 +142,41 @@ class BasicInput extends React.Component {
                     }
                 )
                 .then(response => {
-                    this.setState({ animating: false });
-                    this.setAll()
+                    if (response.data.code == 0) {
+                        this.setState({ animating: false });
+                        this.setAll()
 
 
 
-                    // let userArr = []
-                    // response.data.data.forEach(element => {
-                    //     userArr.push(element.kind)
-                    // });
-                    // let kindMapp = that.state.dataMap
-                    // userArr.forEach((v) => {
-                    //     kindMapp.map(value => {
+                        // let userArr = []
+                        // response.data.data.forEach(element => {
+                        //     userArr.push(element.kind)
+                        // });
+                        // let kindMapp = that.state.dataMap
+                        // userArr.forEach((v) => {
+                        //     kindMapp.map(value => {
 
-                    //         if (v !== value.value) {
-                    //             value.active = false
-                    //         }
-                    //     })
-                    // })
-                    // userArr.forEach((v) => {
-                    //     kindMapp.map(value => {
-                    //         if (v == value.value) {
-                    //             value.active = true
-                    //         }
-                    //     })
-                    this.setState({
-                        content: ''
-                    })
+                        //         if (v !== value.value) {
+                        //             value.active = false
+                        //         }
+                        //     })
+                        // })
+                        // userArr.forEach((v) => {
+                        //     kindMapp.map(value => {
+                        //         if (v == value.value) {
+                        //             value.active = true
+                        //         }
+                        //     })
+                        this.setState({
+                            content: ''
+                        })
+                    } else {
+                        Modal.alert(
+                            "提示",
+                            "网络出了点小差，请稍后重新请求页面..."
+                        );
+                    }
+
                 })
         }
     }
@@ -172,7 +196,15 @@ class BasicInput extends React.Component {
                 }
             )
             .then(response => {
-                this.setAll()
+                if (response.data.code == 0) {
+                    this.setAll()
+                } else {
+                    Modal.alert(
+                        "提示",
+                        "网络出了点小差，请稍后重新请求页面..."
+                    );
+                }
+
             })
     }
 
@@ -212,7 +244,7 @@ class BasicInput extends React.Component {
             <div style={{ height: '100%', position: 'relative' }}>
                 <MyBar title='订单详情' />
                 <div style={{ position: 'relative' }}>
-                    {this.state.showData&&this.state.showData.status > 1 ?
+                    {this.state.showData && this.state.showData.status > 1 ?
                         <div style={{ position: 'absolute', width: '100%', height: '100%', top: 0, left: 0, backgroundColor: 'rgba(0,0,0,0.2)', zIndex: 3 }}>
                             <span style={{ position: 'absolute', left: '50%', top: '50%', marginLeft: '-85px', marginTop: '-45px', fontSize: '30px', fontWeight: 'bold', display: 'block', lineHeight: '2.5em', width: '150px', border: '3px solid #000', borderRadius: '10px', textAlign: 'center', transform: 'rotate(14deg)' }}>
                                 已失效
@@ -310,7 +342,7 @@ class BasicInput extends React.Component {
 
                     </Card> : ''}
                     <WhiteSpace size="md" />
-                    {this.state.messageList&&this.state.showData&&this.state.showData.status == 1 ?
+                    {this.state.messageList && this.state.showData && this.state.showData.status == 1 ?
                         <div>
                             <div style={{ width: '100%', borderTop: '1px solid #ddd', padding: '10px', backgroundColor: '#fff', boxSizing: 'border-box' }}>
                                 留言{this.state.messageList.length}条
@@ -319,7 +351,7 @@ class BasicInput extends React.Component {
 
                                 {this.state.messageList.map(v => {
                                     return (
-                                        <li style={{ padding: '10px 0', borderBottom: '1px solid #ddd' }}>
+                                        <li style={{ padding: '10px 0', borderBottom: '1px solid #ddd', wordWrap: 'break-word', wordBreak: 'break-all', overflow: 'hidden' }}>
                                             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                                 <span style={{ color: '#59647E', fontSize: '0.8em' }}>
                                                     {v.user_info.nickname}
@@ -346,20 +378,20 @@ class BasicInput extends React.Component {
 
                             </ul>  </div> : ''}
                     {
-                        this.state.showData&&this.state.showData.status == 1?<div style={{ position: 'fixed', bottom: '0', width: '100%' }}>
-                        <InputItem
-                            placeholder="请输入内容"
-                            onChange={(v) => { this.setState({ content: v }) }}
-                            value={this.state.content}
-                            extra={<a
+                        this.state.showData && this.state.showData.status == 1 ? <div style={{ position: 'fixed', bottom: '0', width: '100%' }}>
+                            <InputItem
+                                placeholder="请输入内容"
+                                onChange={(v) => { this.setState({ content: v }) }}
+                                value={this.state.content}
+                                extra={<a
 
-                                onClick={
-                                    this.submit.bind(this)
-                                }
+                                    onClick={
+                                        this.submit.bind(this)
+                                    }
 
-                            >留言</a>}
-                        />
-                    </div>:''
+                                >留言</a>}
+                            />
+                        </div> : ''
                     }
 
                 </div>

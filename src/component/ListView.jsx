@@ -10,8 +10,8 @@ function MyBody(props) {
   return (
     <div
       className="am-list-body my-body"
-      //       style="overflow-x: hidden;overflow-y: scroll;
-      // "
+    //       style="overflow-x: hidden;overflow-y: scroll;
+    // "
     >
       {/* <span style={{ display: "none" }}>you can custom body wrap element</span> */}
       {props.children}
@@ -51,13 +51,21 @@ let sectionIDs = [];
 const getData = (query, filter, pIndex = 0, callback) => {
   const remoteURL = "/query/infoboard?" + urlEncode(filter);
   instance.post(remoteURL, query).then(response => {
-    myData[pIndex] = response.data.data;
-    sectionIDs.push(pIndex);
-    let f = length => [...Array.from({ length }).keys()];
-    myRowIDs.push(f(myData[pIndex].length));
-    if (typeof callback === "function") {
-      callback();
+    if (response.data.code == 0) {
+      myData[pIndex] = response.data.data;
+      sectionIDs.push(pIndex);
+      let f = length => [...Array.from({ length }).keys()];
+      myRowIDs.push(f(myData[pIndex].length));
+      if (typeof callback === "function") {
+        callback();
+      }
+    } else {
+      Modal.alert(
+        "提示",
+        "网络出了点小差，请稍后重新请求页面..."
+      );
     }
+
   });
 };
 

@@ -6,9 +6,8 @@ import {
     Modal
 } from "antd-mobile";
 import getDateDiff from "../../utlis/getDateDiff";
-import instance from "../../utlis/api";
-import { kindMap, contact_kind, schoolMap } from "../../Data";
-import { toLogin,showQQ } from "../../utlis/utlis";
+
+import { showQQ } from "../../utlis/utlis";
 
 
 

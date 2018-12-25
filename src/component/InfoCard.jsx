@@ -1,10 +1,20 @@
 import React from "react";
-import { WingBlank, Card, WhiteSpace, Button, Modal, Badge,InputItem } from "antd-mobile";
+import { WingBlank, Card, WhiteSpace, Button, Modal, Badge, InputItem } from "antd-mobile";
 import instance from "../utlis/api";
 import Gallery from "./Gallery";
-import { showQQ,toLogin } from "../utlis/utlis";
+import { showQQ, toLogin } from "../utlis/utlis";
 import { schoolMap } from "../Data"
 
+function closest(el, selector) {
+  const matchesSelector = el.matches || el.webkitMatchesSelector || el.mozMatchesSelector || el.msMatchesSelector;
+  while (el) {
+    if (matchesSelector.call(el, selector)) {
+      return el;
+    }
+    el = el.parentElement;
+  }
+  return null;
+}
 
 export default class InfoCard extends React.Component {
   constructor(props) {
@@ -24,13 +34,39 @@ export default class InfoCard extends React.Component {
       role: role,
       showhidden: 1,
       newshowhidden: 1,
-      newData: [],
-      showContact:false
+      newData: this.props.messageList ? this.props.messageList : [],
+      showContact: false,
+      height: this.props.adv ? '32px' : 'auto',
+      modal1: false,
+      toLink: true
     };
   }
 
+  showModal = key => (e) => {
+    e.preventDefault(); // 修复 Android 上点击穿透
+    console.log(22)
+    this.setState({
+      [key]: true,
+    });
+  }
+  onClose = key => () => {
+    this.setState({
+      [key]: false,
+    });
+  }
 
-  flesh(){
+  onWrapTouchStart = (e) => {
+    // fix touch to scroll background page on iOS
+    if (!/iPhone|iPod|iPad/i.test(navigator.userAgent)) {
+      return;
+    }
+    const pNode = closest(e.target, '.am-modal-content');
+    if (!pNode) {
+      e.preventDefault();
+    }
+  }
+
+  flesh() {
     instance
       .post('/message/query',
         {
@@ -39,47 +75,50 @@ export default class InfoCard extends React.Component {
         }
       )
       .then(response => {
-        this.setState({
-          messageList: response.data.data.reverse()
-        }, () => {
-          let newData = []
-          // let len = this.state.messageList.length > 3 ? 3 : this.state.messageList.length
-          for (let i = 0; i < this.state.messageList.length; i++) {
-            newData.push(this.state.messageList[i])
-          }
+        if (response.data.code == 0) {
           this.setState({
-            newData: newData.reverse()
+            messageList: response.data.data.reverse()
+          }, () => {
+            let newData = []
+            // let len = this.state.messageList.length > 3 ? 3 : this.state.messageList.length
+            for (let i = 0; i < this.state.messageList.length; i++) {
+              newData.push(this.state.messageList[i])
+            }
+            this.setState({
+              newData: newData.reverse()
+            })
           })
-        })
+        }
+
       })
   }
   componentWillMount() {
-    instance
-      .post('/message/query',
-        {
-          infoboard_id: this.props.id,
-          school_id: this.props.school_id,
-        }
-      )
-      .then(response => {
-        this.setState({
-          messageList: response.data.data.reverse()
-        }, () => {
-          let newData = []
-          // let len = this.state.messageList.length > 3 ? 3 : this.state.messageList.length
-          for (let i = 0; i < this.state.messageList.length; i++) {
-            newData.push(this.state.messageList[i])
-          }
-          this.setState({
-            newData: newData.reverse()
-          })
-        })
-      })
+    // instance
+    //   .post('/message/query',
+    //     {
+    //       infoboard_id: this.props.id,
+    //       school_id: this.props.school_id,
+    //     }
+    //   )
+    //   .then(response => {
+    //     this.setState({
+    //       messageList: response.data.data.reverse()
+    //     }, () => {
+    //       let newData = []
+    //       // let len = this.state.messageList.length > 3 ? 3 : this.state.messageList.length
+    //       for (let i = 0; i < this.state.messageList.length; i++) {
+    //         newData.push(this.state.messageList[i])
+    //       }
+    //       this.setState({
+    //         newData: newData.reverse()
+    //       })
+    //     })
+    //   })
   }
 
   showExtra(e) {
     let that = this
-
+    console.log(this.props.comments)
     if (this.props.title) {
       if (this.props.review) {
         if (this.state.status == 0) {
@@ -131,11 +170,19 @@ export default class InfoCard extends React.Component {
                       const remoteURL =
                         "/infoboard/" + this.props.id + "/update";
                       instance.post(remoteURL, data).then(response => {
-                        this.setState({
-                          status: 1,
-                          review: false,
-                          // showhidden: 1
-                        });
+                        if (response.data.code == 0) {
+                          this.setState({
+                            status: 1,
+                            review: false,
+                            // showhidden: 1
+                          });
+                        } else {
+                          Modal.alert(
+                            "提示",
+                            "网络出了点小差，请稍后重新请求页面..."
+                          );
+                        }
+
                       });
                     }
                   }
@@ -152,6 +199,53 @@ export default class InfoCard extends React.Component {
           return
         }
 
+      } else if (this.props.comments) {
+        console.log(12131)
+        return (
+          <Button
+            size="small"
+            inline
+            // maskClosable="true"
+            onClick={(event) => {
+              event.stopPropagation();
+              Modal.alert("提示", <div>是否确定删除</div>, [
+                {
+                  text: "取消",
+                  onPress: () => {
+                    
+                    }
+                },
+                {
+                  text: "通过",
+                  onPress: () => {
+                    // console.log("第0个按钮被点击了");
+
+                    const remoteURL =
+                      `/message/deleted`;
+                    instance.post(remoteURL,{infoboard_id:this.props.id,}).then(response => {
+                      if (response.data.code == 0) {
+                        this.setState({
+                          complete: false,
+                          showhidden:3
+                        });
+                      } else {
+                        Modal.alert(
+                          "提示",
+                          "网络出了点小差，请稍后重新请求页面..."
+                        );
+                      }
+
+                    });
+                  }
+                }
+              ])
+
+            }
+            }
+          >
+            删除
+          </Button>
+        )
       } else if (this.state.status == 1) {
 
         return (
@@ -179,9 +273,17 @@ export default class InfoCard extends React.Component {
                           Authorization: "Bearer " + window.localStorage.getItem('token')
                         }
                       }).then(response => {
-                        this.setState({
-                          status: 2
-                        });
+                        if (response.data.code == 0) {
+                          this.setState({
+                            status: 2
+                          });
+                        } else {
+                          Modal.alert(
+                            "提示",
+                            "网络出了点小差，请稍后重新请求页面..."
+                          );
+                        }
+
                       });
                     }
                   }
@@ -197,7 +299,60 @@ export default class InfoCard extends React.Component {
 
     } else {
       // console.log(this.props.id)
-      if (this.state.role !== 0 && this.state.role) {
+      if (this.props.adv) {
+        if (this.state.role !== 0 && this.state.role) {
+          return (
+            <div>
+              <Button
+                size="small"
+                inline
+                onClick={(event) => {
+                  event.stopPropagation();
+                  instance.delete(`/stick/${this.props.id}`, {
+                    headers: {
+                      Authorization: "Bearer " + window.localStorage.getItem('token')
+                    }
+                  }).then(response => {
+                    if (response.data.code == 0) {
+                      this.setState({
+                        newshowhidden: 3,
+                        toLink: false
+                      })
+                    } else {
+                      Modal.alert(
+                        "提示",
+                        "网络出了点小差，请稍后重新请求页面..."
+                      );
+                    }
+
+                  })
+                }}
+              >
+                下架
+            </Button>
+            </div>
+          )
+        } else {
+          return (
+            <div>
+              <Button
+                size="small"
+                inline
+                onClick={(event) => {
+                  event.stopPropagation();
+                  this.setState({
+                    modal1: true,
+                  });
+                }}
+              >
+                广告
+            </Button>
+            </div>
+          )
+        }
+
+
+      } else if (this.state.role !== 0 && this.state.role) {
         return (<Button
           size="small"
           inline
@@ -219,11 +374,19 @@ export default class InfoCard extends React.Component {
                   instance
                     .post(remoteURL, data)
                     .then(response => {
-                      this.setState({
-                        status: 4,
-                        review: false,
-                        showhidden: 3
-                      });
+                      if (response.data.code == 0) {
+                        this.setState({
+                          status: 4,
+                          review: false,
+                          showhidden: 3
+                        });
+                      } else {
+                        Modal.alert(
+                          "提示",
+                          "网络出了点小差，请稍后重新请求页面..."
+                        );
+                      }
+
                     });
                 }
               }
@@ -235,7 +398,7 @@ export default class InfoCard extends React.Component {
             </Button>)
 
       } else if (this.state.user_id == this.props.user_id) {
-        if (e) {
+        if (this.props.ispush) {
           return (
             <div>
               <Button
@@ -263,9 +426,17 @@ export default class InfoCard extends React.Component {
                             Authorization: "Bearer " + window.localStorage.getItem('token')
                           }
                         }).then(response => {
-                          this.setState({
-                            newshowhidden: 3
-                          });
+                          if (response.data.code) {
+                            this.setState({
+                              newshowhidden: 3
+                            });
+                          } else {
+                            Modal.alert(
+                              "提示",
+                              "网络出了点小差，请稍后重新请求页面..."
+                            );
+                          }
+
                         });
                       }
                     }
@@ -299,11 +470,19 @@ export default class InfoCard extends React.Component {
                         const remoteURL =
                           "/self/infoboard/" + this.props.id + "/update";
                         instance.post(remoteURL, data).then(response => {
-                          this.setState({
-                            status: 2,
-                            showhidden: 3,
-                            complete: true
-                          });
+                          if (response.data.code == 0) {
+                            this.setState({
+                              status: 2,
+                              showhidden: 3,
+                              complete: true
+                            });
+                          } else {
+                            Modal.alert(
+                              "提示",
+                              "网络出了点小差，请稍后重新请求页面..."
+                            );
+                          }
+
                         });
                       }
                     }
@@ -425,7 +604,7 @@ export default class InfoCard extends React.Component {
       instance
         .post('/message',
           {
-            user_id: this.props.user_id,
+            user_id: this.state.user_id,
             infoboard_id: this.props.id,
             school_id: this.props.school_id,
             content: this.state.content
@@ -437,12 +616,20 @@ export default class InfoCard extends React.Component {
           }
         )
         .then(response => {
-          this.setState({
-            showContact: false,
-            flesh: true,
-            content: ''
-          })
-          this.flesh()
+          if (response.data.code == 0) {
+            this.setState({
+              showContact: false,
+              flesh: true,
+              content: ''
+            })
+            this.flesh()
+          } else {
+            Modal.alert(
+              "提示",
+              "网络出了点小差，请稍后重新请求页面..."
+            );
+          }
+
         })
     }
   }
@@ -450,7 +637,13 @@ export default class InfoCard extends React.Component {
   render() {
     return (
       <div onClick={() => {
-        window.location = `#/w/${this.props.id}`;
+
+        if (this.props.adv) {
+          if (this.state.toLink) {
+            window.open(this.props.link);
+          }
+
+        }
       }}>
         <WingBlank size="lg" >
           <WhiteSpace size="lg" />
@@ -475,35 +668,39 @@ export default class InfoCard extends React.Component {
                 title={
                   <div>
                     <div style={{ float: "left", marginRight: 4 }}>
-                      <img
-                        alt=""
-                        style={{
-                          width: "32px",
-                          height: "32px",
-                          borderRadius: "16px"
-                        }}
-                        src={this.props.avatar}
-                      />
+                      {this.props.adv ? <div style={{
+                        width: "32px",
+                        height: "32px",
+                      }}><Gallery photos={this.props.avatar} width={32} /></div> : <img
+                          alt=""
+                          style={{
+                            width: "32px",
+                            height: "32px",
+                            borderRadius: "16px"
+                          }}
+                          src={this.props.avatar}
+                        />}
+
                     </div>
-                    <div style={{ flexDirection: "column", display: "flex" }}>
+                    <div style={{ flexDirection: "column", display: "flex", justifyContent: 'center', height: `${this.state.height}` }}>
                       <span style={{ fontSize: "0.9em" }}>
                         {this.props.nickname}
                       </span>
                       <span style={{ color: "grey", fontSize: "0.5em", marginTop: 4 }}>
-                        {this.props.time}
+                        {this.props.adv ? '' : this.props.time}
                       </span>{" "}
                     </div>
                   </div>
                 }
                 // thumb="https://gw.alipayobjects.com/zos/rmsportal/MRhHctKOineMbKAZslML.jpg"
-                extra={this.showExtra(this.state.ispush)}
+                extra={this.showExtra()}
               />
               <Gallery photos={this.props.photos} />
               <Card.Body>
                 <div>
                   <div >
                     <span style={{ lineHeight: '1.5' }}>{this.props.description}</span>
-                    <span
+                    {this.props.adv ? '' : <span
                       style={{
                         fontSize: "1.8em",
                         fontWeight: "bold",
@@ -513,22 +710,26 @@ export default class InfoCard extends React.Component {
                     >
                       {"￥" + this.props.amount}
                     </span>
+                    }
+
                   </div>
                   <div style={{ clear: "both" }}>
 
                   </div>
-                  <span style={{ display: 'block', height: '16px', marginTop: '10px' }}>
-                    <img onClick={(event) => {
-                      event.stopPropagation();
-                      this.setState({
-                        showContact: true
-                      })
-                    }} style={{ height: '16px', float: 'right' }} src={require('../source/comment.png')} alt="" />
-                  </span>
+                  {this.props.adv||this.props.comments?  '' :
+                    <span style={{ display: 'block', height: '16px', marginTop: '10px' }}>
+                      <img onClick={(event) => {
+                        event.stopPropagation();
+                        this.setState({
+                          showContact: true
+                        })
+                      }} style={{ height: '16px', float: 'right' }} src={require('../source/comment.png')} alt="" />
+                    </span>
+                  }
                   {
                     (!this.props.message) || (this.state.newData.length == 0)
                       ? ''
-                      : <div style={{ marginTop: '6px' }}>
+                      : <div style={{ marginTop: '6px', width: '100%' }}>
                         <div style={{
                           width: 0, height: 0,
                           borderWidth: '0 8px 8px',
@@ -538,15 +739,19 @@ export default class InfoCard extends React.Component {
                           position: 'relative'
                         }}></div>
 
-                        <span style={{ display: 'block', height: 'auto', backgroundColor: '#eee', padding: '4px 0', paddingLeft: '8px' }}>
+                        <span style={{ display: 'block', width: '100%', height: 'auto', backgroundColor: '#eee', padding: '4px 0', paddingLeft: '8px' }}>
                           {
                             this.state.newData.map(v => {
                               return (
-                                <span style={{ display: 'block', fontSize: '0.8em', lineHeight: '1.5' }}>
-                                  <span style={{ color: '#59647E' }}>
-                                    {v.user_info.nickname}
-                                  </span>：{v.content}
-                                </span>
+                                <div style={{ fontSize: '0.8em', lineHeight: '1.5', wordWrap: 'break-word', wordBreak: 'break-all', overflow: 'hidden' }}>
+                                  <span style={{ color: '#59647E' }
+                                  } >
+                                    {v.user_info ? v.user_info.nickname : v.user.nickname}
+                                  </span>：
+                                  <span>
+                                    {v.content}
+                                  </span>
+                                </div>
                               )
                             })
                           }
@@ -557,18 +762,20 @@ export default class InfoCard extends React.Component {
                 </div>
                 {/* <ImgDisplay /> */}
               </Card.Body>
-              <Card.Footer content={this.props.title || this.props.ispush ? this.showSchool(this.props.school_id) : ''} extra={this.props.title ? this.showBadge(this.state.status) : ''} />
+              {this.props.comments?<Card.Footer content={<div onClick={ ()=> window.location = `#/order/${this.props.id}`} style={{textAlign:'center'}}>查看留言</div>}  />:<Card.Footer content={this.props.title || this.props.ispush ? this.showSchool(this.props.school_id) : ''} extra={this.props.title ? this.showBadge(this.state.status) : ''} />}
+              
             </Card>
           </div>
 
         </WingBlank>
 
         {
-          this.state.showContact ? <div  onClick={(event) => {
-            event.stopPropagation();}} style={{ position: 'fixed', bottom: '0', width: '100%',zIndex:5}}>
+          this.state.showContact ? <div onClick={(event) => {
+            event.stopPropagation();
+          }} style={{ position: 'fixed', bottom: '0', width: '100%', zIndex: 5 }}>
             <InputItem
               placeholder="请输入内容"
-             
+
               onChange={(v) => { this.setState({ content: v }) }}
               value={this.state.content}
               extra={<a
@@ -581,8 +788,40 @@ export default class InfoCard extends React.Component {
             />
           </div> : ''
         }
-         
 
+        <Modal
+          visible={this.state.modal1}
+          transparent
+          maskClosable={true}
+          onClose={this.onClose('modal1')}
+          footer={[{ text: '确定', onPress: () => { this.onClose('modal1')(); } }]}
+          wrapProps={{ onTouchStart: this.onWrapTouchStart }}
+        >
+          <div style={{ height: 'auto', textAlign: 'center', paddingTop: '10px' }}>
+            请联系下方客服具体详谈
+           <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '10px' }}>
+              <div>
+                <img
+                  src={require('../source/QQqcode.png')}
+                  style={{ display: 'block', width: '85px', height: '85px' }}
+                  alt="" />
+                <span style={{ display: 'block', textAlign: 'center' }}>
+                  QQ
+                </span>
+              </div>
+              <div>
+                <img
+                  src={require('../source/weixinqcode.png')}
+                  style={{ display: 'block', width: '85px', height: '85px' }}
+                  alt="" />
+                <span style={{ display: 'block', textAlign: 'center' }}>
+                  微信
+                </span>
+              </div>
+
+            </div>
+          </div>
+        </Modal>
       </div>
     );
   }

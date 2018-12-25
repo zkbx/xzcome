@@ -16,6 +16,7 @@ class ImagePickerExample extends React.Component {
       this.setState({
         files
       });
+      console.log(this.props.form)
       this.props.form.setFieldsValue({ photo: files }, () =>
         console.log(this.props.form.getFieldProps("photo").value)
       );
@@ -43,7 +44,8 @@ class ImagePickerExample extends React.Component {
             console.log(index, fs);
             //   put(fs);
           }}
-          selectable={files.length < 7}
+          length={this.props.length?this.props.length:4}
+          selectable={files.length < (this.props.length?this.props.length:7)}
           multiple={this.state.multiple}
         />
       );

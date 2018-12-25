@@ -13,8 +13,8 @@ import {
     Modal
 } from "antd-mobile";
 import { createForm } from "rc-form";
-import instance from "../../utlis/api";
-import { kindMap, contact_kind, schoolMap } from "../../Data";
+
+import { schoolMap } from "../../Data";
 import { toLogin } from "../../utlis/utlis";
 
 

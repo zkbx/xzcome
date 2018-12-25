@@ -44,6 +44,7 @@ class MyInfo extends React.Component {
         kindArr: kindArr,
         modal: false,
         modal1: false,
+        crowdUrl: ''
       }
 
     };
@@ -87,7 +88,7 @@ class MyInfo extends React.Component {
   }
   componentWillMount() {
 
-    
+
     if ("userinfo" in window.localStorage) {
       this.setState({ userinfo: JSON.parse(window.localStorage["userinfo"]) });
     } else if (this.state.token !== "") {
@@ -228,6 +229,7 @@ class MyInfo extends React.Component {
 
 
             onChange={v => {
+              console.log(v)
               Toast.loading();
               const remoteURL = "/self/update";
               const data = {
@@ -235,12 +237,43 @@ class MyInfo extends React.Component {
               };
               console.info(v);
               instance.post(remoteURL, data).then(response => {
-                let userData = JSON.parse(window.localStorage["userinfo"]);
-                userData.school_id = v[0]
-                window.localStorage.setItem("userinfo", JSON.stringify(userData));
-                Toast.hide();
-                this.forceUpdate();
-                this.setState({ showSchool: v })
+                if (response.data.code == 0) {
+                  let userData = JSON.parse(window.localStorage["userinfo"]);
+                  userData.school_id = v[0]
+                  window.localStorage.setItem("userinfo", JSON.stringify(userData));
+                  Toast.hide();
+                  this.forceUpdate();
+                  this.setState({ showSchool: v },
+                    () => {
+                      let crowdUrl = ''
+                      switch (this.state.showSchool[0]) {
+                        case "0010":
+                          crowdUrl = "http://qm.qq.com/cgi-bin/qm/qr?k=A0iRvegDHwTEAXhmfcjRBak8KQoItbM8";
+                          break;
+                        case "0020":
+                          crowdUrl = "http://qm.qq.com/cgi-bin/qm/qr?k=uYQqTsBxzKpTyDnc5Yd_FyUx8Kxfqjcb";
+                          break;
+                        case "0040":
+                          crowdUrl = "http://qm.qq.com/cgi-bin/qm/qr?k=kXMupmaOUZQXm-wrUMMTJtUhheVBFPjo";
+                          break;
+                        case "0051":
+                          crowdUrl = "http://qm.qq.com/cgi-bin/qm/qr?k=b5d5JBn-iyy8IiweEd6oqBB3uRY2aPLd";
+                          break;
+
+                      }
+                      crowdUrl ? Modal.alert('提示', <div>是否加入QQ任务群群</div>, [
+                        { text: '取消' },
+                        { text: '确定', onPress: () => window.location = crowdUrl },
+                      ]) : ''
+                    }
+                  )
+                } else {
+                  Modal.alert(
+                    "提示",
+                    "网络出了点小差，请稍后重新请求页面..."
+                  );
+                }
+
 
               });
             }}
@@ -272,6 +305,21 @@ class MyInfo extends React.Component {
               if (this.state.userinfo.unlogin) {
                 toLogin(1)
               } else {
+                window.location = "#/comments";
+              }
+
+            }}
+            thumb={require('./source/comments.png')}
+          >
+            我的评论
+          </Item>
+          <Item
+            arrow="horizontal"
+            multipleLine
+            onClick={() => {
+              if (this.state.userinfo.unlogin) {
+                toLogin(1)
+              } else {
                 window.location = "#/attention";
               }
 
@@ -280,7 +328,30 @@ class MyInfo extends React.Component {
           >
             接单管理
           </Item>
-          
+          {this.state.userinfo.role == 100 && (
+            <Item
+              arrow="horizontal"
+              multipleLine
+              onClick={() => {
+                window.location = "#/advertising";
+              }}
+              thumb={require('./source/ad.png')}
+            >
+              发布广告
+            </Item>
+          )}
+          {this.state.userinfo.role == 100 && (
+            <Item
+              arrow="horizontal"
+              multipleLine
+              onClick={() => {
+                window.location = "#/reviewAD";
+              }}
+              thumb={require('./source/reviewAd.png')}
+            >
+              广告管理
+            </Item>
+          )}
           {this.state.userinfo.role > 0 && (
             <Item
               arrow="horizontal"
@@ -293,6 +364,7 @@ class MyInfo extends React.Component {
               审核
             </Item>
           )}
+
           {/*<Item
             arrow="horizontal"
             multipleLine
@@ -326,9 +398,9 @@ class MyInfo extends React.Component {
           >
             QQ
           </Item>
-          <Item>
+          {/* <Item>
           <a target="_blank" href="//shang.qq.com/wpa/qunwpa?idkey=f43f124d8e7d14901b364bf9181992f9fab535071efc0d87b6cde0de1baa3c4a">加群</a>
-          </Item>
+          </Item> */}
           {/* <Item
             arrow="horizontal"
             multipleLine
@@ -348,6 +420,7 @@ class MyInfo extends React.Component {
           >
             微信
           </Item>
+
         </List>
 
         <List renderHeader={() => ""} className="my-list">
@@ -414,13 +487,13 @@ class MyInfo extends React.Component {
         >
           <div style={{ height: 'auto', textAlign: 'center' }}>
             请扫描下方二维码<br />快快添加客服为好友吧
-           <div style={{ display: 'flex', justifyContent: 'space-around' ,marginTop:'10px'}}>
+           <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '10px' }}>
               <div>
                 <img
                   src={require('../../source/QQqcode.png')}
-                  style={{ display: 'block', width: '85px', height: '85px'}}
+                  style={{ display: 'block', width: '85px', height: '85px' }}
                   alt="" />
-                <span style={{display:'block',textAlign:'center'}}>
+                <span style={{ display: 'block', textAlign: 'center' }}>
                   QQ
                 </span>
               </div>
@@ -429,7 +502,7 @@ class MyInfo extends React.Component {
                   src={require('../../source/weixinqcode.png')}
                   style={{ display: 'block', width: '85px', height: '85px' }}
                   alt="" />
-                <span style={{display:'block',textAlign:'center'}}>
+                <span style={{ display: 'block', textAlign: 'center' }}>
                   微信
                 </span>
               </div>

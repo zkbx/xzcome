@@ -1,4 +1,5 @@
 import instance from "../utlis/api";
+import {Modal} from "antd-mobile"
 
 function unique(arr) {
     var res = [];
@@ -15,7 +16,7 @@ function unique(arr) {
 //获取用户信息
 const getUserInfo = (token, callback) => {
 
-    
+
     const remoteURL = "/getself/";
     instance
         .get(remoteURL, {
@@ -24,9 +25,9 @@ const getUserInfo = (token, callback) => {
             }
         })
         .then(response => {
-            if (response.data.data != null) {
+            if (response.data.code == 0) {
                 let userself = response.data.data;
-               
+
                 instance
                     .post('/tags/query',
                         {
@@ -39,23 +40,36 @@ const getUserInfo = (token, callback) => {
                         }
                     )
                     .then(response => {
-                        userself.tags = []
-                        response.data.data.forEach(element => {
-                            console.log(element.kind)
-                            userself.tags.push(element.kind)
-                        });
+                        if (response.data.code == 0) {
+                            userself.tags = []
+                            response.data.data.forEach(element => {
+                                // console.log(element.kind)
+                                userself.tags.push(element.kind)
+                            });
 
-                        userself.tags=unique(userself.tags)
-                        // userself.tags = response.data.data
+                            userself.tags = unique(userself.tags)
+                            // userself.tags = response.data.data
 
-                        if (typeof callback === "function") {
-                            callback(userself);
+                            if (typeof callback === "function") {
+                                callback(userself);
+                            }
+                        } else {
+                            Modal.alert(
+                                "提示",
+                                "网络出了点小差，请稍后重新请求页面..."
+                            );
                         }
+
                     })
 
 
 
 
+            } else {
+                Modal.alert(
+                    "提示",
+                    "网络出了点小差，请稍后重新请求页面..."
+                );
             }
 
         });

@@ -3,12 +3,15 @@ import { TabBar } from "antd-mobile";
 import MyInfo from "./page/myInfo/MyInfo";
 import InfoBoard from "./page/infoBoard";
 import Submit from "./page/submit/Submit";
+import Advertising from "./page/advertising"
 import Help from "./page/help/index"
 import Grade from "./page/grade/index";
 import MyGrade from "./page/myGrade/index"
 import Mylist from "./page/mylist/index";
 import Review from "./page/review/index";
+import ReviewAD from "./page/reviewAD/index"
 import Attention from "./page/attention/index"
+import Comments from "./page/comments/index"
 import { Route } from "react-router";
 import infoboard from "./source/infoboard.png";
 // import OrderDetail from "./page/orderDetails"
@@ -46,6 +49,9 @@ export default class MainLayout extends React.Component {
       case "review":
       case "attention":
       case "help":
+      case "advertising":
+      case "reviewAD":
+      case "comments":
         selectedTab = "my";
         break;
       case "grade":
@@ -96,7 +102,7 @@ export default class MainLayout extends React.Component {
             <Route path="/" exact component={InfoBoard} />
             <Route path="/a/:id" exact component={InfoBoard} />
             <Route path="/s/:id" exact component={InfoBoard} />
-            {/* <Route path="/w/:id" exact component={OrderDetail} /> */}
+            <Route path="/w/:id" exact component={InfoBoard} />
           </TabBar.Item>
           <TabBar.Item
             icon={
@@ -186,6 +192,10 @@ export default class MainLayout extends React.Component {
             <Route path="/review" exact component={Review} />
             <Route path="/mylist/:id" exact component={Mylist} />
             <Route path="/mylist" exact component={Mylist} />
+            <Route path="/advertising" exact component={Advertising} />
+            <Route path="/reviewAD" exact component={ReviewAD} />
+            <Route path="/comments" exact component={Comments} />
+            
           </TabBar.Item>
         </TabBar>
       </div>

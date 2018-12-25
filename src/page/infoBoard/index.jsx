@@ -97,7 +97,25 @@ class InfoBoard extends React.Component {
         "学长来咯，是一家为大学提供互助服务的信息平台，本站不收集用户信息，不收取服务费用，请大家放心使用"
       );
     }
+    if (this.props.match.params.id) {
+      console.log(this.props.match.params.id)
+      const remoteURL = "/infoboard/" + this.props.match.params.id;
 
+      instance.get(remoteURL).then(response => {
+        if (response.data.code == 0) {
+          this.setState({
+            showData: response.data.data,
+            modal: true
+          })
+        }else{
+          Modal.alert(
+            "提示",
+            "网络出了点小差，请稍后重新请求页面..."
+          );
+        }
+
+      });
+    }
 
 
   }
@@ -108,10 +126,10 @@ class InfoBoard extends React.Component {
     });
   }
 
-  
 
 
- 
+
+
 
 
   render() {
@@ -238,7 +256,7 @@ class InfoBoard extends React.Component {
 
         </Tabs>
 
-        {/* {this.state.showData ? <Modal
+        {this.state.showData ? <Modal
           visible={this.state.modal}
           transparent
           maskClosable={true}
@@ -301,8 +319,8 @@ class InfoBoard extends React.Component {
               {this.state.showData.info.descipt}
             </span>
           </div>
-        </Modal> : ''} */}
-        
+        </Modal> : ''}
+
 
       </div>
     );

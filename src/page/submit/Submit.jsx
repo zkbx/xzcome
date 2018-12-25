@@ -51,135 +51,224 @@ let client = new OSS({
 });
 
 
-const FuckJsCallbackIWantImg = function (imgFiles, info, ispush) {
-  if (imgFiles.length === 0) {
-    const kind = info.kind[0];
-    const school_id = info["school_id"][0];
-    delete info.kind;
-    delete info["school_id"];
-    const infoData = {
-      user_id: info["id"],
-      school_id: school_id,
-      info: JSON.stringify(info),
-      status: 1,
-      kind: kind
-    };
-    const remoteURL = "/infoboard";
-    // console.info(infoData);
-    instance
-      .post(remoteURL, infoData, {
-        headers: {
-          Authorization: "Bearer " + window.localStorage.getItem('token')
-        }
-      })
-      .then(response => {
-        Toast.success("发布成功", 1, () => {
-          window.location = "#/mylist/" + String(response.data.data.id);
-        });
-        if (ispush) {
-          instance
-            .post("/ispush", {
-              user_id: info["id"],
-              school_id: school_id,
-              infoboard_id: response.data.data.id
-            }, {
-                headers: {
-                  Authorization: "Bearer " + window.localStorage.getItem('token')
-                }
-              }).then(response => {
-                // Toast.success("发布成功", 1, () => {
-                //   window.location = "#/mylist/" + String(response.data.data.id);
-                // });
-                console.log(111123)
 
-              }).catch(function (error) {
-                console.log(error);
-                Toast.fail("发布失败");
-              });
-        }
-
-      })
-      .catch(function (error) {
-        console.log(error);
-        Toast.fail("发布失败");
-      });
-  } else {
-    var img = new Image();
-    img.src = imgFiles[0].url;
-    img.onload = function () {
-      var canvas = document.createElement("canvas");
-      var context = canvas.getContext("2d");
-      var originWidth = img.width;
-      var originHeight = img.height;
-      // 最大尺寸限制
-      var maxWidth = 400,
-        maxHeight = 400;
-      // 目标尺寸
-      var targetWidth = originWidth,
-        targetHeight = originHeight;
-      // 图片尺寸超过400x400的限制
-      if (originWidth > maxWidth || originHeight > maxHeight) {
-        if (originWidth / originHeight > maxWidth / maxHeight) {
-          // 更宽，按照宽度限定尺寸
-          targetWidth = maxWidth;
-          targetHeight = Math.round(maxWidth * (originHeight / originWidth));
-        } else {
-          targetHeight = maxHeight;
-          targetWidth = Math.round(maxHeight * (originWidth / originHeight));
-        }
-      }
-      // canvas对图片进行缩放
-      canvas.width = targetWidth;
-      canvas.height = targetHeight;
-      // 清除画布
-      context.clearRect(0, 0, targetWidth, targetHeight);
-      // 图片压缩
-      context.drawImage(img, 0, 0, targetWidth, targetHeight);
-      // canvas 转file
-      var dataurl = canvas.toDataURL("image/png");
-      var arr = dataurl.split(","),
-        mime = arr[0].match(/:(.*?);/)[1],
-        bstr = atob(arr[1]),
-        n = bstr.length,
-        u8arr = new Uint8Array(n);
-      while (n--) {
-        u8arr[n] = bstr.charCodeAt(n);
-      }
-      var file = new File(
-        [u8arr],
-        parseInt(Math.random() * 10000000, 10).toString() + ".png",
-        {
-          type: mime
-        }
-      );
-      client.put(file.name, file).then(r1 => {
-        info.imgs.push({
-          src: file.name,
-          width: targetWidth,
-          height: targetHeight
-        });
-        FuckJsCallbackIWantImg(imgFiles.slice(1), info);
-      });
-    };
-  }
-};
 
 class BasicInput extends React.Component {
   state = {
     choosedContact: false,
     kind: "",
     checked: false,
-    modal1: false
+    modal1: false,
+    showMask: 'none'
   };
   componentWillMount() {
+    let that = this
     if (window.localStorage.getItem('userinfo')) {
       this.setState({ userinfo: JSON.parse(window.localStorage["userinfo"]) });
     } else {
-      // window.localStorage.setItem('url', 'submit')
       toLogin(1);
       this.setState({ userinfo: {} });
     }
+    instance
+      .post('/wx/js-sdk', { url: window.location.href })
+      .then(response => {
+        const wx = window.wx
+        if (response.data.code == 0) {
+          wx.config({
+            debug: true, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+            appId: response.data.data.app_id, // 必填，公众号的唯一标识
+            timestamp: response.data.data.timestamp, // 必填，生成签名的时间戳
+            nonceStr: response.data.data.nonce_str, // 必填，生成签名的随机串
+            signature: response.data.data.signature,// 必填，签名
+            jsApiList: ['updateTimelineShareData', 'updateAppMessageShareData','onMenuShareAppMessage','onMenuShareTimeline'] // 必填，需要使用的JS接口列表
+          });
+
+          wx.ready(function () {
+            var imgUrl ="http://192.168.0.151/1.jpg",
+                link = "http://192.168.0.151/1.jpg"
+            var shareData = {
+                title: '好东西',
+                desc: '一起分享~',//这里请特别注意是要去除html
+                link: link,
+                imgUrl: imgUrl
+            };
+            if(!wx.updateAppMessageShareData){ //微信文档中提到这两个接口即将弃用，故判断
+              alert("old")
+                wx.onMenuShareAppMessage(shareData);//1.0 分享到朋友
+                wx.onMenuShareTimeline(shareData);//1.0分享到朋友圈
+            }else{
+              alert("new")
+                wx.updateAppMessageShareData(shareData);//1.4 分享到朋友
+                wx.updateTimelineShareData(shareData);//1.4分享到朋友圈
+            }
+            
+        });
+        }
+
+
+      })
+
   }
+
+  FuckJsCallbackIWantImg(imgFiles, info, ispush) {
+    if (imgFiles.length === 0) {
+      const kind = info.kind[0];
+      const school_id = info["school_id"][0];
+      delete info.kind;
+      delete info["school_id"];
+      const infoData = {
+        user_id: info["id"],
+        school_id: school_id,
+        info: JSON.stringify(info),
+        status: 1,
+        kind: kind
+      };
+      const remoteURL = "/infoboard";
+      // console.info(infoData);
+      instance
+        .post(remoteURL, infoData, {
+          headers: {
+            Authorization: "Bearer " + window.localStorage.getItem('token')
+          }
+        })
+        .then(response => {
+          if (response.data.code == 0) {
+            // Toast.success('发布成功!', 1);
+            this.setState({
+              urlId: response.data.data.id
+            })
+
+            if (ispush) {
+              instance
+                .post("/ispush", {
+                  user_id: info["id"],
+                  school_id: school_id,
+                  infoboard_id: response.data.data.id
+                }, {
+                    headers: {
+                      Authorization: "Bearer " + window.localStorage.getItem('token')
+                    }
+                  }).then(response => {
+                    // Toast.success("发布成功", 1, () => {
+                    //   window.location = "#/mylist/" + String(response.data.data.id);
+                    // });
+
+                    if (response.data.code == 0) {
+                      Toast.hide()
+                      Modal.alert('发布成功', <span>想要快速审核<br />请点击"去分享按钮"，<br />把内容分享到朋友圈</span>, [
+                        {
+                          text: '取消',
+                          onPress: () =>
+                            window.location = "#/mylist/" + String(response.data.data.id)
+                        },
+                        {
+                          text: '去分享页',
+                          onPress: () => {
+                            this.setState({
+                              showMask: 'block'
+                            })
+                          }
+                        }
+                      ])
+                    } else {
+                      Modal.alert(
+                        "提示",
+                        "网络出了点小差，请稍后重新请求页面..."
+                      );
+                    }
+                  }).catch(function (error) {
+                    console.log(error);
+                    Toast.fail("发布失败");
+                  });
+            } else {
+              Toast.hide()
+              Modal.alert('发布成功', <span>想要快速审核<br />请点击"去分享按钮"，<br />把内容分享到朋友圈</span>, [
+                {
+                  text: '取消',
+                  onPress: () =>
+                    window.location = "#/mylist/" + String(response.data.data.id)
+                },
+                {
+                  text: '去分享', onPress: () => {
+                    this.setState({
+                      showMask: 'block'
+                    })
+                  }
+                }
+              ])
+            }
+          } else {
+            Modal.alert(
+              "提示",
+              "网络出了点小差，请稍后重新请求页面..."
+            );
+          }
+        })
+        .catch(function (error) {
+          console.log(error);
+          Toast.fail("发布失败");
+        });
+    } else {
+      var img = new Image();
+      img.src = imgFiles[0].url;
+      img.onload = function () {
+        var canvas = document.createElement("canvas");
+        var context = canvas.getContext("2d");
+        var originWidth = img.width;
+        var originHeight = img.height;
+        // 最大尺寸限制
+        var maxWidth = 400,
+          maxHeight = 400;
+        // 目标尺寸
+        var targetWidth = originWidth,
+          targetHeight = originHeight;
+        // 图片尺寸超过400x400的限制
+        if (originWidth > maxWidth || originHeight > maxHeight) {
+          if (originWidth / originHeight > maxWidth / maxHeight) {
+            // 更宽，按照宽度限定尺寸
+            targetWidth = maxWidth;
+            targetHeight = Math.round(maxWidth * (originHeight / originWidth));
+          } else {
+            targetHeight = maxHeight;
+            targetWidth = Math.round(maxHeight * (originWidth / originHeight));
+          }
+        }
+        // canvas对图片进行缩放
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
+        // 清除画布
+        context.clearRect(0, 0, targetWidth, targetHeight);
+        // 图片压缩
+        context.drawImage(img, 0, 0, targetWidth, targetHeight);
+        // canvas 转file
+        var dataurl = canvas.toDataURL("image/png");
+        var arr = dataurl.split(","),
+          mime = arr[0].match(/:(.*?);/)[1],
+          bstr = atob(arr[1]),
+          n = bstr.length,
+          u8arr = new Uint8Array(n);
+        while (n--) {
+          u8arr[n] = bstr.charCodeAt(n);
+        }
+        var file = new File(
+          [u8arr],
+          parseInt(Math.random() * 10000000, 10).toString() + ".png",
+          {
+            type: mime
+          }
+        );
+        client.put(file.name, file).then(r1 => {
+          info.imgs.push({
+            src: file.name,
+            width: targetWidth,
+            height: targetHeight
+          });
+          let ispushll = ispush
+          this.FuckJsCallbackIWantImg(imgFiles.slice(1), info, ispushll);
+        });
+      };
+    }
+  };
 
   showModal = key => (e) => {
     e.preventDefault(); // 修复 Android 上点击穿透
@@ -249,7 +338,7 @@ class BasicInput extends React.Component {
         value.anonymous = value.anonymous[0];
       }
       value.id = this.state.userinfo.id;
-      FuckJsCallbackIWantImg(imgs, value, this.state.checked);
+      this.FuckJsCallbackIWantImg(imgs, value, this.state.checked);
     });
   };
 
@@ -384,61 +473,6 @@ class BasicInput extends React.Component {
         //   </div>
         // );
         break;
-        // case "330000":
-        //   desPlaceholder = "说出你的心意吧~";
-        //   extraInfo = (
-        //     <div>
-        //       <Picker
-        //         data={[
-        //           { value: true, label: "是" },
-        //           { value: false, label: "否" }
-        //         ]}
-        //         cols={1}
-        //         {...getFieldProps("anonymous", {
-        //           // initialValue: 'little ant',
-        //           rules: [{ required: true, message: "请选择是否匿名" }]
-        //         })}
-        //       >
-        //         <List.Item arrow="horizontal">匿名</List.Item>
-        //       </Picker>
-
-        //       <InputItem
-        //         {...getFieldProps("askfor", {
-        //           // initialValue: 'little ant',
-        //           rules: [{ required: true, message: "你想送给谁" }]
-        //         })}
-        //         clear
-        //         error={!!getFieldError("askfor")}
-        //         onErrorClick={() => {
-        //           alert(getFieldError("askfor").join("、"));
-        //         }}
-        //         placeholder="某人"
-        //       >
-        //         他/她
-        //       </InputItem>
-        //     </div>
-        //   );
-        //   break;
-        // case "340000":
-        //   desPlaceholder =
-        //     "简要描述兼职信息，例如：海底捞服务员，日薪，要求男生，白天上班";
-        //   extraInfo = (
-        //     <InputItem
-        //       {...getFieldProps("amount", {
-        //         // initialValue: 'little ant',
-        //         rules: [{ required: true, message: "请输入金额" }]
-        //       })}
-        //       clear
-        //       error={!!getFieldError("amount")}
-        //       onErrorClick={() => {
-        //         alert(getFieldError("amount").join("、"));
-        //       }}
-        //       placeholder="5、5元、面议，均可"
-        //     >
-        //       兼职薪资
-        //     </InputItem>
-        //   );
-        break;
 
       default:
         desPlaceholder = "请填写您的需求";
@@ -450,7 +484,7 @@ class BasicInput extends React.Component {
 
 
     return (
-      <div>
+      <div style={{ position: 'relative', height: '100%' }}>
         {/* <div className={styles.ywheader}>
           <div className={styles.ywtitle}>信息发布</div>
         </div> */}
@@ -460,9 +494,13 @@ class BasicInput extends React.Component {
                 <WingBlank mode={20} className="stepsExample">
                     <Steps current={0} direction="horizontal" size="small">{steps}</Steps>
                 </WingBlank> */}
-
-        <WhiteSpace size="lg" />
-        <List>
+        <div style={{ display: `${this.state.showMask}`, position: 'absolute', top: '0', left: '0', width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', zIndex: '5' }}>
+          <img src={require('./images/arrow.png')} style={{ width: '40px', position: 'absolute', top: '10px', right: '40px' }} alt="" />
+          <span style={{ color: '#fff', fontWeight: 'bold', fontSize: '1.4em', position: 'absolute', top: '60px', right: '40px' }}>
+            分享到朋友圈
+          </span>
+        </div>
+        <List renderHeader={() => "基本信息"}>
           <Picker
             data={kindMap}
             cols={1}
@@ -543,7 +581,7 @@ class BasicInput extends React.Component {
             placeholder={desPlaceholder}
           />
         </List>
-        <div style={{display:'flex',justifyContent:'space-between'}}>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
 
           <Checkbox.AgreeItem
             data-seed="logId"
@@ -562,12 +600,8 @@ class BasicInput extends React.Component {
             >《免责声明》
               </a>
           </Checkbox.AgreeItem>
-
-          <span onClick={this.showModal('modal1')} style={{ display: 'block' ,padding:'9px 0',lineHeight:'1.5',paddingRight:'16px',color:'#5a76c6'}}>
-            <img src={require('./images/why.png')} style={{width:'18px',height:'18px',verticalAlign:'middle',marginRight:'2px'}} alt=""/>快速审核
-            </span>
-
         </div>
+        <WhiteSpace size="lg" />
         <WingBlank size="lg">
           <Button type="primary" onClick={this.submit}>
             提交
@@ -577,20 +611,20 @@ class BasicInput extends React.Component {
         <Modal
           visible={this.state.modal1}
           transparent
-          maskClosable={true}
+          maskClosable={false}
           onClose={this.onClose('modal1')}
-          footer={[{ text: '取消', onPress: () => {this.onClose('modal1')(); } },{ text: '去分享页', onPress: () => {window.location ='#/share'} }]}
+          footer={[{ text: '确定', onPress: () => { this.onClose('modal1')(); window.location = `#/mylist/${this.state.urlId}` } }]}
           wrapProps={{ onTouchStart: this.onWrapTouchStart }}
         >
           <div style={{ height: 'auto', textAlign: 'center' }}>
-            请扫描下方二维码<br />快快添加客服为好友吧
-           <div style={{ display: 'flex', justifyContent: 'space-around' ,marginTop:'10px'}}>
+            分享成功<br />请添加下方客服后<br />把朋友圈截图发送给客服
+           <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '10px' }}>
               <div>
                 <img
                   src={require('../../source/QQqcode.png')}
-                  style={{ display: 'block', width: '85px', height: '85px'}}
+                  style={{ display: 'block', width: '85px', height: '85px' }}
                   alt="" />
-                <span style={{display:'block',textAlign:'center'}}>
+                <span style={{ display: 'block', textAlign: 'center' }}>
                   QQ
                 </span>
               </div>
@@ -599,14 +633,13 @@ class BasicInput extends React.Component {
                   src={require('../../source/weixinqcode.png')}
                   style={{ display: 'block', width: '85px', height: '85px' }}
                   alt="" />
-                <span style={{display:'block',textAlign:'center'}}>
+                <span style={{ display: 'block', textAlign: 'center' }}>
                   微信
                 </span>
               </div>
 
             </div>
           </div>
-        
         </Modal>
       </div >
     );
