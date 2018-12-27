@@ -216,7 +216,7 @@ export default class InfoCard extends React.Component {
                     }
                 },
                 {
-                  text: "通过",
+                  text: "确定",
                   onPress: () => {
                     // console.log("第0个按钮被点击了");
 
@@ -426,7 +426,7 @@ export default class InfoCard extends React.Component {
                             Authorization: "Bearer " + window.localStorage.getItem('token')
                           }
                         }).then(response => {
-                          if (response.data.code) {
+                          if (response.data.code==0) {
                             this.setState({
                               newshowhidden: 3
                             });

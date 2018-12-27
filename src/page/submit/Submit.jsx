@@ -69,48 +69,13 @@ class BasicInput extends React.Component {
       toLogin(1);
       this.setState({ userinfo: {} });
     }
-    instance
-      .post('/wx/js-sdk', { url: window.location.href })
-      .then(response => {
-        const wx = window.wx
-        if (response.data.code == 0) {
-          wx.config({
-            debug: true, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
-            appId: response.data.data.app_id, // 必填，公众号的唯一标识
-            timestamp: response.data.data.timestamp, // 必填，生成签名的时间戳
-            nonceStr: response.data.data.nonce_str, // 必填，生成签名的随机串
-            signature: response.data.data.signature,// 必填，签名
-            jsApiList: ['updateTimelineShareData', 'updateAppMessageShareData','onMenuShareAppMessage','onMenuShareTimeline'] // 必填，需要使用的JS接口列表
-          });
-
-          wx.ready(function () {
-            var imgUrl ="http://192.168.0.151/1.jpg",
-                link = "http://192.168.0.151/1.jpg"
-            var shareData = {
-                title: '好东西',
-                desc: '一起分享~',//这里请特别注意是要去除html
-                link: link,
-                imgUrl: imgUrl
-            };
-            if(!wx.updateAppMessageShareData){ //微信文档中提到这两个接口即将弃用，故判断
-              alert("old")
-                wx.onMenuShareAppMessage(shareData);//1.0 分享到朋友
-                wx.onMenuShareTimeline(shareData);//1.0分享到朋友圈
-            }else{
-              alert("new")
-                wx.updateAppMessageShareData(shareData);//1.4 分享到朋友
-                wx.updateTimelineShareData(shareData);//1.4分享到朋友圈
-            }
-            
-        });
-        }
-
-
-      })
+    console.log(`${require('./images/logo.png')}`)
+   
 
   }
 
   FuckJsCallbackIWantImg(imgFiles, info, ispush) {
+    let that=this
     if (imgFiles.length === 0) {
       const kind = info.kind[0];
       const school_id = info["school_id"][0];
@@ -155,21 +120,7 @@ class BasicInput extends React.Component {
 
                     if (response.data.code == 0) {
                       Toast.hide()
-                      Modal.alert('发布成功', <span>想要快速审核<br />请点击"去分享按钮"，<br />把内容分享到朋友圈</span>, [
-                        {
-                          text: '取消',
-                          onPress: () =>
-                            window.location = "#/mylist/" + String(response.data.data.id)
-                        },
-                        {
-                          text: '去分享页',
-                          onPress: () => {
-                            this.setState({
-                              showMask: 'block'
-                            })
-                          }
-                        }
-                      ])
+                      window.location = "#/resultPage/" + String(response.data.data.id)
                     } else {
                       Modal.alert(
                         "提示",
@@ -182,20 +133,7 @@ class BasicInput extends React.Component {
                   });
             } else {
               Toast.hide()
-              Modal.alert('发布成功', <span>想要快速审核<br />请点击"去分享按钮"，<br />把内容分享到朋友圈</span>, [
-                {
-                  text: '取消',
-                  onPress: () =>
-                    window.location = "#/mylist/" + String(response.data.data.id)
-                },
-                {
-                  text: '去分享', onPress: () => {
-                    this.setState({
-                      showMask: 'block'
-                    })
-                  }
-                }
-              ])
+              window.location = "#/resultPage/" + String(response.data.data.id)
             }
           } else {
             Modal.alert(
@@ -264,7 +202,7 @@ class BasicInput extends React.Component {
             height: targetHeight
           });
           let ispushll = ispush
-          this.FuckJsCallbackIWantImg(imgFiles.slice(1), info, ispushll);
+          that.FuckJsCallbackIWantImg(imgFiles.slice(1), info, ispushll);
         });
       };
     }
@@ -494,12 +432,12 @@ class BasicInput extends React.Component {
                 <WingBlank mode={20} className="stepsExample">
                     <Steps current={0} direction="horizontal" size="small">{steps}</Steps>
                 </WingBlank> */}
-        <div style={{ display: `${this.state.showMask}`, position: 'absolute', top: '0', left: '0', width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', zIndex: '5' }}>
+        {/* <div style={{ display: `${this.state.showMask}`, position: 'absolute', top: '0', left: '0', width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', zIndex: '5' }}>
           <img src={require('./images/arrow.png')} style={{ width: '40px', position: 'absolute', top: '10px', right: '40px' }} alt="" />
           <span style={{ color: '#fff', fontWeight: 'bold', fontSize: '1.4em', position: 'absolute', top: '60px', right: '40px' }}>
             分享到朋友圈
           </span>
-        </div>
+        </div> */}
         <List renderHeader={() => "基本信息"}>
           <Picker
             data={kindMap}

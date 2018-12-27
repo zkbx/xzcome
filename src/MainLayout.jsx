@@ -8,6 +8,7 @@ import Help from "./page/help/index"
 import Grade from "./page/grade/index";
 import MyGrade from "./page/myGrade/index"
 import Mylist from "./page/mylist/index";
+import ResultPage from "./page/resultPage/index"
 import Review from "./page/review/index";
 import ReviewAD from "./page/reviewAD/index"
 import Attention from "./page/attention/index"
@@ -44,6 +45,9 @@ export default class MainLayout extends React.Component {
       case "w":
       case "s":
         selectedTab = "";
+        break;
+      case "resultPage":
+        selectedTab = "submit";
         break;
       case "mylist":
       case "review":
@@ -130,6 +134,9 @@ export default class MainLayout extends React.Component {
             onPress={this.navTo.bind(this, 'submit')}
           >
             <Route path="/user" component={Submit} />
+            <Route path="/resultPage/:id" component={ResultPage} />
+
+            
             <Route path="/submit" component={Submit} />
           </TabBar.Item>
           {/* <TabBar.Item
@@ -195,7 +202,7 @@ export default class MainLayout extends React.Component {
             <Route path="/advertising" exact component={Advertising} />
             <Route path="/reviewAD" exact component={ReviewAD} />
             <Route path="/comments" exact component={Comments} />
-            
+
           </TabBar.Item>
         </TabBar>
       </div>

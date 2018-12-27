@@ -34,21 +34,17 @@ export default class BasicInput extends React.Component {
                             <img src={require('./images/help9.png')} style={{ display: 'block', width: '100%', margin: '10px auto' }} alt="" />
                         </div>
                     </Accordion.Panel>
-                    <Accordion.Panel header={<b>3.如何发布信息</b>} className="pad">
+                    <Accordion.Panel header={<b>3.如何联系发布信息的人</b>} className="pad">
                         <div style={{ padding: '10px 18px', fontSize: '1.2em', lineHeight: '1.5' }}>
                             <div>
-                                <b>第一步</b><br />在登录后选择发布按钮
+                                点击信息的右上角联系按钮
                             </div>
-                            <img src={require('./images/help8.png')} style={{ display: 'block', width: '100%', margin: '10px auto' }} alt="" />
+                            <img src={require('./images/help12.png')} style={{ display: 'block', width: '100%', margin: '10px auto' }} alt="" />
                             <br />
                             <div>
-                                <b>第二步</b><br />填写完你要发布的信息点击提交就发布成功啦
-                                <div style={{ color: 'rgb(232,0,0)' }}>
-                                    （注：要选好类别和学校，联系方式要选择方便联系的类别哦）
-                                </div>
-
+                                然后点击弹窗中的按钮，到对应的类别里 粘贴后加为好友就可以联系了
                             </div>
-                            <img src={require('./images/help9.png')} style={{ display: 'block', width: '100%', margin: '10px auto' }} alt="" />
+                            <img src={require('./images/help13.png')} style={{ display: 'block', width: '100%', margin: '10px auto' }} alt="" />
                         </div>
                     </Accordion.Panel>
                     <Accordion.Panel header={<b>4.想要接受推送消息怎么设置</b>} className="pad">
@@ -136,7 +132,7 @@ export default class BasicInput extends React.Component {
                             </div>
                             <img src={require('./images/help16.png')} style={{ display: 'block', width: '100%', margin: '10px auto' }} alt="" />
                         </div>
-                    </Accordion.Panel> 
+                    </Accordion.Panel>
                     <Accordion.Panel header={<b>9.如何管理评论</b>} className="pad">
                         <div style={{ padding: '10px 18px', fontSize: '1.2em', lineHeight: '1.5' }}>
                             <div>
@@ -151,7 +147,7 @@ export default class BasicInput extends React.Component {
                                 <b>第三种</b><br />在首页选择自己发布的内容 可以管理下面的全部评论。
                             </div>
                         </div>
-                    </Accordion.Panel>                  
+                    </Accordion.Panel>
                     <Accordion.Panel header={<b>10.发布成功的订单交易完成后怎么下架</b>} className="pad">
                         <div style={{ padding: '10px 18px', fontSize: '1.2em', lineHeight: '1.5' }}>
                             <div>

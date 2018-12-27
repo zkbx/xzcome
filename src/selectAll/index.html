@@ -3,14 +3,82 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>加入团购</title>
+    <script>
+        window.onload = function () {
+            let url = ''
+            var provinceList = [
+                {
+                    name: { name: '西北工业大学', value: '0010' }, cityList: [
+                        { name: { name: '星天苑A座', value: 'http://qm.qq.com/cgi-bin/qm/qr?k=FrKORqNvS_XXktQuTJaIU76s3E7FJl16' } },
+                        { name: { name: '星天苑B座', value: 'http://qm.qq.com/cgi-bin/qm/qr?k=WJJ7UrbH5YB9gRQ1Txqb2d8iY-HYlMZr' } },
+                        { name: { name: '星天苑C座', value: 'http://qm.qq.com/cgi-bin/qm/qr?k=2nIR6_9KACOD2ouUcVXQSeUuqG_WJHus' } },
+                        { name: { name: '星天苑D座', value: 'http://qm.qq.com/cgi-bin/qm/qr?k=yZPjkiJZOVdjYnjuZjKaghwq_r1MHb2x' } },
+                        { name: { name: '星天苑E座', value: 'http://qm.qq.com/cgi-bin/qm/qr?k=gT3n6ztdyyvmfuxwpjU-ZgucGvQXv5Zi' } },
+                        { name: { name: '星天苑F座', value: 'http://qm.qq.com/cgi-bin/qm/qr?k=gT3n6ztdyyvmfuxwpjU-ZgucGvQXv5Zi' } },
+                        { name: { name: '星天苑G座', value: 'http://qm.qq.com/cgi-bin/qm/qr?k=cM9rrQwOU-3JmR_UvWI1dKu4jHSSZD8L' } },
+                        { name: { name: '云天苑A座', value: 'http://qm.qq.com/cgi-bin/qm/qr?k=GodEK6Xirx55IZOybhul-dnSa8TH9D-Y' } },
+                        { name: { name: '云天苑B座', value: 'http://qm.qq.com/cgi-bin/qm/qr?k=GM_OGfuitljuhwxpX0DmcOaxSBXZBz6i' } },
+                        { name: { name: '云天苑C座', value: 'http://qm.qq.com/cgi-bin/qm/qr?k=B8yy8wha4VS0Dwq6Qldmag7xzRRQlb-B' } },
+                        { name: { name: '云天苑D座', value: 'http://qm.qq.com/cgi-bin/qm/qr?k=-iFCzfSyWem4Ola2b1bvp55MKidjdFo-' } },
+                        { name: { name: '云天苑E座', value: 'http://qm.qq.com/cgi-bin/qm/qr?k=zoW9B5QG2zGJK38EEeoHQkQUkKLKuSwj' } },
+                        { name: { name: '云天苑F座', value: 'http://qm.qq.com/cgi-bin/qm/qr?k=EDCTdZqNuDt38gXHXGAecvPhZEIX6wOm' } },
+                    ]
+                },
 
+
+            ];
+            var provinces = document.querySelector('.province');
+            var citys = document.querySelector('.city');
+            // provinces.onfocus = function () {
+            provinces.innerHTML = "<option>请选择学校</option>";
+            citys.innerHTML = "<option>请选择宿舍楼</option>";
+            provinceList.forEach(function (value) {
+                var newoption = document.createElement("option");
+                newoption.value = value.name.value
+                newoption.text = value.name.name;
+                provinces.appendChild(newoption)
+            })
+            // };
+
+            provinces.onchange = function (e) {
+                citys.innerHTML = "<option>请选择宿舍楼</option>";
+                var provinceindex = provinces.selectedIndex - 1;
+                var city = provinceList[provinceindex].cityList;
+                city.forEach(function (value) {
+                    var newoption = document.createElement("option");
+                    newoption.value = value.name.value
+                    newoption.text = value.name.name;
+                    citys.appendChild(newoption)
+                })
+            };
+            citys.onchange = function (e) {
+                console.log(e)
+
+            };
+
+        }
+        function getElements() {
+            var form = document.getElementById('#myform');
+            var elements = new Array();
+            var school = document.querySelector('#school');
+            var schoolIndex = school.selectedIndex;
+            console.log(school.options[schoolIndex].value)
+            var floor = document.querySelector('#floor');
+            var floorIndex = floor.selectedIndex;
+            console.log(floor.options[floorIndex].value)
+            window.location = floor.options[floorIndex].value
+            // return elements;
+        }
+    </script>
     <style type="text/css">
         select {
+
+            -webkit-appearance: none;
+            /*兼容苹果手机*/
             height: 40px;
-            line-height: 30px;
             border-radius: 10px;
             width: 100%;
             outline: none;
@@ -18,7 +86,7 @@
             margin: 0 auto;
             margin-bottom: 16px;
             border: none;
-            background-color: rgb(237, 237, 237);
+            background-color: rgba(176, 190, 197, 0.2);
             padding-left: 10px;
             color: rgb(147, 147, 147);
         }
@@ -63,8 +131,40 @@
         .selectBox {
             width: 60%;
             margin: 0 auto;
+            position: relative;
         }
+
+        @font-face {
+            font-family: 'iconfont';
+            /* project id 986211 */
+            src: url('http://at.alicdn.com/t/font_986211_c7zh4lbwwu6.eot');
+            src: url('http://at.alicdn.com/t/font_986211_c7zh4lbwwu6.eot?#iefix') format('embedded-opentype'),
+                url('http://at.alicdn.com/t/font_986211_c7zh4lbwwu6.woff') format('woff'),
+                url('http://at.alicdn.com/t/font_986211_c7zh4lbwwu6.ttf') format('truetype'),
+                url('http://at.alicdn.com/t/font_986211_c7zh4lbwwu6.svg#iconfont') format('svg');
+        }
+
+        .iconfont {
+            font-family: "iconfont" !important;
+            font-size: 16px;
+            font-style: normal;
+            -webkit-font-smoothing: antialiased;
+            -webkit-text-stroke-width: 0.2px;
+            -moz-osx-font-smoothing: grayscale;
+            display: inline-block;
+            position: absolute;
+            right: 4%;
+            top: 12px;
+            height: 25px;
+            width: 20px;
+            z-index: -1000;
+        }
+
+        /* .jt {
+            
+        } */
     </style>
+
 </head>
 
 <body>
@@ -75,11 +175,15 @@
                 <select name="provinces" class="province" id='school'>
                     <option>请选择学校</option>
                 </select>
+                <!-- <span class="jt"> -->
+                <i class="iconfont">&#xe662;</i>
+                <!-- </span> -->
             </div>
             <div class="selectBox">
                 <select name="citys" class="city" id='floor'>
                     <option>请选择宿舍楼</option>
                 </select>
+                <span class="jt"><i class="iconfont">&#xe662;</i></span>
             </div>
 
         </form>
@@ -89,71 +193,6 @@
     </div>
 
 </body>
-<script>
-    window.onload = function () {
-        let url = ''
-        var provinceList = [
-            {
-                name: { name: '西北工业大学', value: '0010' }, cityList: [
-                    { name: { name: '星天苑A座', value: 'http://qm.qq.com/cgi-bin/qm/qr?k=FrKORqNvS_XXktQuTJaIU76s3E7FJl16' } },
-                    { name: { name: '星天苑B座', value: 'http://qm.qq.com/cgi-bin/qm/qr?k=WJJ7UrbH5YB9gRQ1Txqb2d8iY-HYlMZr' } },
-                    { name: { name: '星天苑C座', value: 'http://qm.qq.com/cgi-bin/qm/qr?k=2nIR6_9KACOD2ouUcVXQSeUuqG_WJHus' } },
-                    { name: { name: '星天苑D座', value: 'http://qm.qq.com/cgi-bin/qm/qr?k=yZPjkiJZOVdjYnjuZjKaghwq_r1MHb2x' } },
-                    { name: { name: '星天苑E座', value: 'http://qm.qq.com/cgi-bin/qm/qr?k=gT3n6ztdyyvmfuxwpjU-ZgucGvQXv5Zi' } },
-                    { name: { name: '星天苑F座', value: 'http://qm.qq.com/cgi-bin/qm/qr?k=gT3n6ztdyyvmfuxwpjU-ZgucGvQXv5Zi' } },
-                    { name: { name: '星天苑G座', value: 'http://qm.qq.com/cgi-bin/qm/qr?k=cM9rrQwOU-3JmR_UvWI1dKu4jHSSZD8L' } },
-                    { name: { name: '云天苑A座', value: 'http://qm.qq.com/cgi-bin/qm/qr?k=GodEK6Xirx55IZOybhul-dnSa8TH9D-Y' } },
-                    { name: { name: '云天苑B座', value: 'http://qm.qq.com/cgi-bin/qm/qr?k=GM_OGfuitljuhwxpX0DmcOaxSBXZBz6i' } },
-                    { name: { name: '云天苑C座', value: 'http://qm.qq.com/cgi-bin/qm/qr?k=B8yy8wha4VS0Dwq6Qldmag7xzRRQlb-B' } },
-                    { name: { name: '云天苑D座', value: 'http://qm.qq.com/cgi-bin/qm/qr?k=-iFCzfSyWem4Ola2b1bvp55MKidjdFo-' } },
-                    { name: { name: '云天苑E座', value: 'http://qm.qq.com/cgi-bin/qm/qr?k=zoW9B5QG2zGJK38EEeoHQkQUkKLKuSwj' } },
-                    { name: { name: '云天苑F座', value: 'http://qm.qq.com/cgi-bin/qm/qr?k=EDCTdZqNuDt38gXHXGAecvPhZEIX6wOm' } },
-                ]
-            },
 
-
-        ];
-        var provinces = document.querySelector('.province');
-        provinces.onfocus = function () {
-            provinces.innerHTML = "<option>请选择学校</option>";
-            citys.innerHTML = "<option>请选择宿舍楼</option>";
-            provinceList.forEach(function (value) {
-                var newoption = document.createElement("option");
-                newoption.value = value.name.value
-                newoption.text = value.name.name;
-                provinces.appendChild(newoption)
-            })
-        };
-        var citys = document.querySelector('.city');
-        provinces.onchange = function (e) {
-            citys.innerHTML = "<option>请选择宿舍楼</option>";
-            var provinceindex = provinces.selectedIndex - 1;
-            var city = provinceList[provinceindex].cityList;
-            city.forEach(function (value) {
-                var newoption = document.createElement("option");
-                newoption.value = value.name.value
-                newoption.text = value.name.name;
-                citys.appendChild(newoption)
-            })
-        };
-        citys.onchange = function (e) {
-            console.log(e)
-
-        };
-
-    }
-    function getElements() {
-        var form = document.getElementById('#myform');
-        var elements = new Array();
-        var school = document.querySelector('#school');
-        var schoolIndex = school.selectedIndex;
-        console.log(school.options[schoolIndex].value)
-        var floor = document.querySelector('#floor');
-        var floorIndex = floor.selectedIndex;
-        console.log(floor.options[floorIndex].value)
-        window.location = floor.options[floorIndex].value
-        // return elements;
-    }
-</script>
 
 </html>

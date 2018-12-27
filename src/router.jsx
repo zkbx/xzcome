@@ -71,6 +71,8 @@ class App extends React.Component {
           <Route path="/comments" component={MainLayout} />
           <Route path="/order/:id" component={OrderDetails} />
           <Route path="/advertising" component={MainLayout} />
+          <Route path="/resultPaget/:id" component={MainLayout} />
+          <Route path="/resultPage" component={MainLayout} />
           <Route path="/help" component={MainLayout} />
           <Route path="/review" component={MainLayout} />
           <Route path="/mylist/:id" component={MainLayout} />
